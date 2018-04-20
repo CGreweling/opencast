@@ -51,6 +51,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+
 /**
  * @author bbru
  *
@@ -104,32 +105,30 @@ public final class DublinCoreMetadataUtil {
   /**
    * Set the value of an iterable string, comma separated
    *
-   * @param dc
-   *          The dublin core catalog to add the iterable string value to (or remove it if empty)
-   * @param field
-   *          The {@link MetadataField} with the value to update.
-   * @param ename
-   *          The {@link EName} of the property in the {@link DublinCoreCatalog} to update.
+   * @param dc    The dublin core catalog to add the iterable string value to (or remove it if empty)
+   * @param field The {@link MetadataField} with the value to update.
+   * @param ename The {@link EName} of the property in the {@link DublinCoreCatalog} to update.
    */
   private static void setIterableString(DublinCoreCatalog dc, MetadataField<?> field, final EName ename) {
     if (field.getValue().isSome()) {
-      String valueString;
-      if (field.getValue().get() instanceof String) {
-        valueString = (String) field.getValue().get();
-      } else {
-        @SuppressWarnings("unchecked")
-        Iterable<String> valueIterable = (Iterable<String>) field.getValue().get();
-        valueString = StringUtils.join(valueIterable.iterator(), ",");
-      }
+      Iterable<String> iterableString = null;
 
-      if (StringUtils.isBlank(StringUtils.trimToEmpty(valueString))) {
-        // The value of the iterative string is empty so we will remove it.
-        dc.remove(ename);
+      if (field.getValue().get() instanceof String) {
+        dc.add(ename, (String) field.getValue().get());
       } else {
-        dc.set(ename, valueString);
+        iterableString = (Iterable<String>) field.getValue().get();
+
+      //  String valueString = StringUtils.join(iterableString.iterator(), ",");
+        //if (StringUtils.isBlank(StringUtils.trimToEmpty(valueString))) {
+          // The value of the iterative string is empty so we will remove it.
+          dc.remove(ename);
+        //} else {
+          for (String value : iterableString) {
+            dc.add(ename, value.toString());
+          }
+        }
       }
     }
-  }
 
   private static Opt<DCMIPeriod> getPeriodFromCatalog(DublinCoreCatalog dc, EName ename) {
     List<DublinCoreValue> periodStrings = dc.get(ename);

@@ -131,16 +131,20 @@ public final class EventUtils {
       MetadataField<?> presenters = metadata.getOutputFields().get(DublinCore.PROPERTY_CREATOR.getLocalName());
       metadata.removeField(presenters);
       MetadataField<String> newPresenters = MetadataUtils.copyMetadataField(presenters);
-      newPresenters.setValue(StringUtils.join(event.getPresenters(), ", "));
-      metadata.addField(newPresenters);
+      for (String presenter : event.getPresenters()) {
+        newPresenters.setValue(presenter);
+        metadata.addField(newPresenters);
+      }
     }
 
     if (metadata.getOutputFields().containsKey(DublinCore.PROPERTY_CONTRIBUTOR.getLocalName())) {
       MetadataField<?> contributors = metadata.getOutputFields().get(DublinCore.PROPERTY_CONTRIBUTOR.getLocalName());
       metadata.removeField(contributors);
       MetadataField<String> newContributors = MetadataUtils.copyMetadataField(contributors);
-      newContributors.setValue(StringUtils.join(event.getContributors(), ", "));
-      metadata.addField(newContributors);
+      for (String contributor : event.getContributors()) {
+        newContributors.setValue(contributor);
+        metadata.addField(newContributors);
+      }
     }
 
     String recordingStartDate = event.getRecordingStartDate();
