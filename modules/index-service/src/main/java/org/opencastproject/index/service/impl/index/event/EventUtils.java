@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -130,9 +131,8 @@ public final class EventUtils {
     if (metadata.getOutputFields().containsKey(DublinCore.PROPERTY_CREATOR.getLocalName())) {
       MetadataField<?> presenters = metadata.getOutputFields().get(DublinCore.PROPERTY_CREATOR.getLocalName());
       metadata.removeField(presenters);
-      MetadataField<String> newPresenters = MetadataUtils.copyMetadataField(presenters);
       for (String presenter : event.getPresenters()) {
-        newPresenters.setValue(presenter);
+        MetadataField<List<String>> newPresenters = (MetadataField<List<String>>) event.getPresenters();
         metadata.addField(newPresenters);
       }
     }
@@ -140,9 +140,9 @@ public final class EventUtils {
     if (metadata.getOutputFields().containsKey(DublinCore.PROPERTY_CONTRIBUTOR.getLocalName())) {
       MetadataField<?> contributors = metadata.getOutputFields().get(DublinCore.PROPERTY_CONTRIBUTOR.getLocalName());
       metadata.removeField(contributors);
-      MetadataField<String> newContributors = MetadataUtils.copyMetadataField(contributors);
       for (String contributor : event.getContributors()) {
-        newContributors.setValue(contributor);
+        MetadataField<List<String>> newContributors = MetadataUtils.copyMetadataField(contributors);
+        newContributors.setValue(event.getContributors());
         metadata.addField(newContributors);
       }
     }
