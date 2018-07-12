@@ -69,7 +69,7 @@ import javax.xml.transform.stream.StreamSource;
  */
 @XmlType(name = "event", namespace = IndexObject.INDEX_XML_NAMESPACE, propOrder = { "identifier", "organization",
         "title", "description", "subject", "location", "presenters", "contributors", "seriesId", "seriesName",
-        "language", "source", "created", "creator", "license", "rights", "accessPolicy", "managedAcl", "workflowState",
+        "language", "source", "created", "valid", "creator", "license", "rights", "accessPolicy", "managedAcl", "workflowState",
         "workflowId", "workflowDefinitionId", "recordingStartTime", "recordingEndTime", "duration", "trackMimetypes",
         "trackStreamResolutions", "trackFlavors", "metadataFlavors", "metadataMimetypes", "attachmentFlavors",
         "reviewStatus", "reviewDate", "optedOut", "blacklisted", "hasComments", "hasOpenComments", "hasPreview", "needsCutting",
@@ -168,6 +168,11 @@ public class Event implements IndexObject {
   /** The creation date of the event */
   @XmlElement(name = "created")
   private String created = null;
+
+  /** The Expiry date of the event */
+  @XmlElement(name = "valid")
+  private String valid = null;
+
 
   /** The creator of the event */
   @XmlElement(name = "creator")

@@ -143,6 +143,13 @@ public final class EventUtils {
       metadata.addField(newContributors);
     }
 
+    if (metadata.getOutputFields().containsKey(DublinCore.PROPERTY_VALID.getLocalName())) {
+      MetadataField<?> valid = metadata.getOutputFields().get(DublinCore.PROPERTY_VALID.getLocalName());
+      metadata.removeField(valid);
+      MetadataField<String> newValidDate = MetadataUtils.copyMetadataField(valid);
+      metadata.addField(newValidDate);
+    }
+
     String recordingStartDate = event.getRecordingStartDate();
     if (StringUtils.isNotBlank(recordingStartDate)) {
       Date startDateTime = new Date(DateTimeSupport.fromUTC(recordingStartDate));

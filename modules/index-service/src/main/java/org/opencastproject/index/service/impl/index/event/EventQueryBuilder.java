@@ -137,6 +137,11 @@ public class EventQueryBuilder extends AbstractElasticsearchQueryBuilder<EventSe
       and(EventIndexSchema.CREATED, query.getCreated(), true);
     }
 
+    // VALID
+    if (query.getValid() != null) {
+      and(EventIndexSchema.VALID, query.getValid(), true);
+    }
+
     // Creator
     if (query.getCreator() != null) {
       and(EventIndexSchema.CREATOR, query.getCreator(), true);

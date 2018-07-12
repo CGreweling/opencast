@@ -809,6 +809,7 @@
            "VISIBILITY":     "Visibility",
            "PUBLIC":         "Public target",
            "OS":             "Processing operating system",
+	   "VALID":          "Expiry Date",
            "LOCKED": {
              "RUNNING": "Editing metadata is not allowed when operations are running on an event"
            }
@@ -1022,7 +1023,8 @@
            "SUBJECT":        "Subject",
            "LANGUAGE":       "Language",
            "LICENSE":        "License",
-           "DESCRIPTION":    "Description"
+           "DESCRIPTION":    "Description",
+	   "VALID":          "Expiry Date"
          },
          "PARTICIPATION": {
             "CAPTION": "Participation status template",

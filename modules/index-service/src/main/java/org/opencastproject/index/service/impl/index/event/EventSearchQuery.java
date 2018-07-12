@@ -54,6 +54,7 @@ public class EventSearchQuery extends AbstractSearchQuery {
   private String language = null;
   private String source = null;
   private String created = null;
+  private String valid = null;
   private Date startFrom = null;
   private Date startTo = null;
   private Date technicalStartFrom = null;
@@ -435,6 +436,15 @@ public class EventSearchQuery extends AbstractSearchQuery {
    */
   public String getCreated() {
     return created;
+  }
+
+  /**
+   * Returns the Expiry date of the recording.
+   *
+   * @return the Expiry date
+   */
+  public String getValid() {
+    return valid;
   }
 
   /**

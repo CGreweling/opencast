@@ -126,6 +126,9 @@ public interface EventIndexSchema extends IndexSchema {
   /** The creation date */
   String CREATED = "created";
 
+  /** Expiry Date */
+  String VALID = "valid";
+
   /** The creator */
   String CREATOR = "creator";
 
