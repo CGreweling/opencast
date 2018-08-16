@@ -435,6 +435,18 @@ public class Event implements IndexObject {
   }
 
   /**
+   *
+   * @param validDate
+   */
+  public void setValid(String validDate) { this.valid = validDate; }
+
+  /**
+   *
+   * @return validDate
+   */
+  public String getValid() { return this.valid; }
+
+  /**
    * Returns the recording location.
    *
    * @return the location

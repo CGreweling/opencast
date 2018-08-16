@@ -1939,6 +1939,8 @@ public abstract class AbstractEventEndpoint {
       if (collection.getOutputFields().containsKey("location"))
         collection.removeField(collection.getOutputFields().get("location"));
       metadataList.add(getIndexService().getCommonEventCatalogUIAdapter(), collection);
+      if (collection.getOutputFields().containsKey(DublinCore.PROPERTY_VALID.getLocalName()))
+        collection.removeField(collection.getOutputFields().get(DublinCore.PROPERTY_VALID.getLocalName()));
     }
     return okJson(metadataList.toJSON());
   }

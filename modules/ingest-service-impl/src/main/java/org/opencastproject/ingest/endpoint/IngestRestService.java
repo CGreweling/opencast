@@ -541,6 +541,7 @@ public class IngestRestService extends AbstractJobProducerEndpoint {
         default:
           throw new IllegalStateException("Type must be one of track, catalog, or attachment");
       }
+
       return Response.ok(MediaPackageParser.getAsXml(mp)).build();
     } catch (Exception e) {
       logger.warn(e.getMessage(), e);

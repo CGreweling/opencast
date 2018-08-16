@@ -129,6 +129,8 @@ public final class EventIndexUtils {
       metadata.addField(EventIndexSchema.SOURCE, event.getSource(), true);
     if (StringUtils.isNotBlank(event.getCreated()))
       metadata.addField(EventIndexSchema.CREATED, event.getCreated(), true);
+    if (StringUtils.isNotBlank(event.getCreated()))
+      metadata.addField(EventIndexSchema.VALID, event.getValid(), true);
     if (StringUtils.isNotBlank(event.getCreator()))
       metadata.addField(EventIndexSchema.CREATOR, event.getCreator(), true);
     if (StringUtils.isNotBlank(event.getLicense()))

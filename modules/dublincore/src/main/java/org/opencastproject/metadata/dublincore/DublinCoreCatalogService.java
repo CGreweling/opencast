@@ -146,6 +146,11 @@ public class DublinCoreCatalogService implements CatalogService<DublinCoreCatalo
           metadata.setContributors(contributors.toArray(new String[contributors.size()]));
         }
 
+        // Expiry Date
+        if (dc.hasValue(DublinCore.PROPERTY_VALID)) {
+          metadata.setValid(EncodingSchemeUtils.decodeDate(dc.get(DublinCore.PROPERTY_VALID).get(0)));
+        }
+
         // Subject
         if (dc.hasValue(DublinCore.PROPERTY_SUBJECT)) {
           List<String> subjects = new ArrayList<String>();
