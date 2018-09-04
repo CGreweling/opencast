@@ -98,6 +98,11 @@ public class StaticMetadataServiceMediaPackageImpl implements StaticMetadataServ
       }
 
       @Override
+      public Option<String> getValid() {
+        return null;
+      }
+
+      @Override
       public Option<Long> getExtent() {
         return option(mp.getDuration());
       }

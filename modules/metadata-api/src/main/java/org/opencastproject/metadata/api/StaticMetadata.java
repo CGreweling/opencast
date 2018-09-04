@@ -46,6 +46,8 @@ public interface StaticMetadata {
 
   Option<Date> getCreated();
 
+  Option<String> getValid();
+
   Option<Long> getExtent();
 
   Option<String> getLanguage();

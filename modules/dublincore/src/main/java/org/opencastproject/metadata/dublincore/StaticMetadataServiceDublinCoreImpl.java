@@ -209,6 +209,11 @@ public class StaticMetadataServiceDublinCoreImpl implements StaticMetadataServic
       }
 
       @Override
+      public Option<String> getValid() {
+        return null;
+      }
+
+      @Override
       public Option<Date[]> getTemporalPeriod() {
         if (temporalOpt.isSome()) {
           if (temporalOpt.get() instanceof DCMIPeriod) {

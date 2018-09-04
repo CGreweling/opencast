@@ -92,4 +92,6 @@ public interface MediaPackageMetadata {
    */
   Date getDate();
 
+  String getValid();
+
 }

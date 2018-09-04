@@ -148,7 +148,7 @@ public class DublinCoreCatalogService implements CatalogService<DublinCoreCatalo
 
         // Expiry Date
         if (dc.hasValue(DublinCore.PROPERTY_VALID)) {
-          metadata.setValid(EncodingSchemeUtils.decodeDate(dc.get(DublinCore.PROPERTY_VALID).get(0)));
+          metadata.setValid(dc.getFirst(DublinCore.PROPERTY_VALID));
         }
 
         // Subject
