@@ -64,7 +64,13 @@
          "NAME": "名称"
       },
       "ACTIONS": {
-         "CONFIRMATION": "需要确认"
+         "CONFIRMATION": "Confirmation"
+      },
+      "WARNINGS": {
+         "SERIES_HAS_EVENTS": "This series does contain events. Deleting the series will not delete the events."
+      },
+      "ERRORS": {
+         "SERIES_HAS_EVENTS": "This series cannot be deleted as it still contains events."
       }
    },
    "MEDIAMODULE": "媒体模块",
@@ -74,7 +80,8 @@
       "HELP": "帮助",
       "USERS_GUIDE": "用户指南",
       "DOCUMENTATION": "文档",
-      "REST_DOC": "REST API 文档"
+      "REST_DOC": "REST API 文档",
+      "HOTKEY_CHEAT_SHEET": "Keyboard Shortcuts"
    },
    "NOTIFICATIONS": {
       "ACL_ADDED": "访问权限已新增",
@@ -120,6 +127,7 @@
       "SERIES_NOT_UPDATED_ALL": "所有系列均无法保存",
       "EVENTS_DELETED": "事件已删除",
       "EVENTS_NOT_DELETED": "事件无法删除",
+      "EVENTS_NOT_DELETED_NOT_AUTHORIZED": "The event could not be deleted, because you don't have the permission to do so.",
       "SERIES_DELETED": "该系列已被删除",
       "SERIES_NOT_DELETED": "该系列无法删除",
       "USER_BLACKLIST_CREATED": "黑名单已创建",
@@ -130,6 +138,7 @@
       "USER_BLACKLIST_NOT_DELETED": "黑名单无法删除",
       "LOCATION_DELETED": "位置已删除",
       "LOCATION_NOT_DELETED": "位置无法删除",
+      "LOCATION_NOT_DELETED_NOT_AUTHORIZED": "The location could not be deleted, because you don't have the permission to do so.",
       "LOCATION_BLACKLIST_CREATED": "黑名单已创建",
       "LOCATION_BLACKLIST_NOT_CREATED": "黑名单无法创建",
       "LOCATION_BLACKLIST_SAVED": "黑名单已保存",
@@ -146,8 +155,10 @@
       "EMAIL_SENT": "邮件已发送",
       "EMAIL_NOT_SENT": "邮件无法发送",
       "CONFLICT_DETECTED": "排程有冲突：该新事件与已存在的某个事件有重叠，请更改位置、日期或时间。",
+      "CONFLICT_BULK_DETECTED": "Scheduling conflict: changing the events results in conflicts. Please change the location, dates or times.",
       "CONFLICT_ALREADY_ENDED": "排程错误 ︰ 该事件已结束。",
       "CONFLICT_END_BEFORE_START": "排程错误 ︰ 结束时间必须要迟于开始时间。",
+      "CONFLICT_IN_THE_PAST": "The schedule could not be updated: You cannot schedule an event to be in the past.",
       "INVALID_ACL_RULES": "规则必须含有一个拥有读取和/或写入权限的有效角色。",
       "MISSING_ACL_RULES": "至少有一个角色必须具有读取和写入权限。",
       "SAVED_ACL_RULES": "访问权限已保存",
@@ -163,10 +174,12 @@
       "THEME_NAME_ALREADY_TAKEN": "该名称已被使用",
       "THEME_NAME_EMPTY": "名称不能为空",
       "BUMPER_UPLOAD_ERROR": "上传时出错",
+      "BUMPER_REQUIRED": "You must upload a bumper",
       "TRAILER_UPLOAD_ERROR": "上传时出错",
       "TITLE_UPLOAD_ERROR": "上传时出错",
       "LICENSE_UPLOAD_ERROR": "上传时出错",
       "WATERMARK_UPLOAD_ERROR": "上传时出错",
+      "WATERMARK_REQUIRED": "You must upload a watermark",
       "THEME_UPLOAD_STARTED": "媒体正在上传中......",
       "THEME_CREATED": "主题已创建",
       "THEME_NOT_CREATED": "主题无法创建",
@@ -193,7 +206,8 @@
       "DELETE": {
          "SERIES": {
             "CAPTION": "删除",
-            "BUTTON": "删除"
+            "BUTTON": "删除",
+            "CANNOT_DELETE": "The highlighted series cannot be deleted as they still contain events."
          },
          "EVENTS": {
             "CAPTION": "删除",
@@ -209,6 +223,7 @@
                "EVENTS_RETRACTED": "要撤回的事件",
                "RETRACT_WORKFLOW": "要撤回事件的工作流"
             },
+            "UNAUTHORIZED": "You are not authorized to delete the highlighted events. Please unselect them to continue.",
             "UNPUBLISHED": {
                "NONE": "选中的事件无一可以被删除而不留下孤立文件。"
             },
@@ -237,12 +252,42 @@
             "CONFIGURATION": "配置",
             "WORKFLOW": "任务"
          }
+      },
+      "EDIT_EVENTS": {
+         "CAPTION": "Edit scheduled events",
+         "CONFLICT_CHECK_RUNNING": "Conflict check is running…",
+         "GENERAL": {
+            "CAPTION": "一般",
+            "CANNOTSTART": "Highlighted event(s) cannot be processed, only scheduled events are supported.",
+            "NOCHANGES": "No changes to the events detected!",
+            "CONFLICT_FIRST_EVENT": "Changed event",
+            "CONFLICT_SECOND_EVENT": "Event in conflict",
+            "CANNOTEDITSCHEDULE": "For the highlighted events, you don't have the permission to edit scheduling information. You can continue, but you won't be able to edit scheduling information of any events at all."
+         },
+         "METADATA": {
+            "EDIT": "Edit metadata"
+         },
+         "SUMMARY": {
+            "CAPTION": "摘要",
+            "SINGLE_EVENT_CAPTION": "Event “{{ title }}”",
+            "TYPE": "类型",
+            "PREVIOUS": "Old value",
+            "NEXT": "New value"
+         },
+         "EDIT": {
+            "CAPTION": "编辑",
+            "METADATA": "元数据",
+            "SCHEDULING": "计划任务"
+         }
       }
    },
    "DATES": {
       "TODAY": "今天",
       "TOMORROW": "明天",
-      "YESTERDAY": "昨天"
+      "YESTERDAY": "昨天",
+      "THIS_WEEK": "This week",
+      "THIS_MONTH": "This month",
+      "THIS_YEAR": "This year"
    },
    "DATETIMES": {
       "TODAY": "今天在 {{ time }}",
@@ -411,6 +456,7 @@
                "CAPTION": "Asset Upload",
                "SELECT_TYPE": "Select asset type",
                "ADD": "Add Asset",
+               "NO_OPTIONS": "A list of asset options was not provided to this section of the web page!",
                "OPTION": {
                   "CLASS_HANDOUT_NOTES": "Class handout notes",
                   "CAPTIONS_DFXP": "Captions DFXP",
@@ -426,7 +472,10 @@
                "ACL": "访问权限"
             },
             "SUMMARY": {
-               "CAPTION": "常规"
+               "CAPTION": "常规",
+               "SOURCE": {
+                  "INPUT": "Input"
+               }
             },
             "WEEKDAYS": {
                "MO": "星期一",
@@ -436,6 +485,15 @@
                "FR": "星期五",
                "SA": "星期六",
                "SU": "星期日"
+            },
+            "WEEKDAYSLONG": {
+               "MO": "Monday",
+               "TU": "Tuesday",
+               "WE": "Wednesday",
+               "TH": "Thursday",
+               "FR": "Friday",
+               "SA": "Saturday",
+               "SU": "Sunday"
             }
          },
          "NAVIGATION": {
@@ -454,6 +512,7 @@
             "SERIES": "系列",
             "DATE": "日期",
             "START": "开始",
+            "END": "End",
             "STOP": "停止",
             "STATUS": "状态",
             "LOCATION": "位置",
@@ -468,6 +527,7 @@
             "PREVIOUS": "前一项",
             "NOCONTENT": "无可用数据",
             "PUBLISHED": "已发布",
+            "WEEKDAY": "Weekday",
             "TOOLTIP": {
                "START": "Filter for this start date",
                "SERIES": "Filter for this series",
@@ -475,8 +535,8 @@
                "LOCATION": "Filter for this location",
                "DETAILS": "Open event details",
                "DELETE": "Delete event",
-               "PREVIEW": "Open preview player",
                "EDITOR": "Open video Editor",
+               "EDITOR_NEEDS_CUTTING": "Open video Editor (a comment indicates that cutting the video has been requested)",
                "COMMENTS": "View comments",
                "PAUSED_WORKFLOW": "View paused workflow"
             }
@@ -504,22 +564,22 @@
          "DETAILS": {
             "HEADER": "事件的详情 - {{resourceId}}",
             "TABS": {
-               "GENERAL": "常规",
                "METADATA": "元数据",
                "EXTENDED-METADATA": "扩展元数据",
                "ASSETS": "资产",
+               "PUBLICATIONS": "出版",
                "SCHEDULING": "计划任务",
                "WORKFLOWS": "工作流",
                "ACCESS": "访问权限",
                "COMMENTS": "评注"
             },
-            "GENERAL": {
-               "PUBLICATION_STATUS": "出版",
+            "PUBLICATIONS": {
+               "CAPTION": "出版",
                "NO_PUBLICATIONS_AVAILABLE": "This event has no publications",
                "PUBLICATION_DESCRIPTION": "This event has been published to the following publication channels:",
                "LIVE_EVENT_NOT_IN_PROGRESS": "This event is not currently in progress",
                "SCHEDULING_STATUS": "状态",
-               "READY_FOR_RECORDING": "准备好录制",
+               "READY_FOR_RECORDING": "准备录制",
                "OPTED_OUT": "选择退出",
                "CUSTOM": "自定义",
                "ENGAGE": "播放",
@@ -599,6 +659,8 @@
                "TYPE": "类型",
                "SIZE": "文件大小",
                "DETAILS": "详情",
+               "STREAMS": "Streams",
+               "PREVIEW": "Preview",
                "ATTACHMENTS": {
                   "TITLE": "附件",
                   "CAPTION": "附件",
@@ -806,6 +868,7 @@
                "ACTIONS": "操作",
                "DETAILS": "详情",
                "DESCRIPTION": "",
+               "MORE_INFO": "More Information & Actions",
                "ID": "ID",
                "TYPE": "类型",
                "TITLE": "标题",
@@ -825,15 +888,39 @@
                   "DELETE": "Delete workflow instance"
                }
             },
+            "WORKFLOW_INSTANCES": {
+               "TITLE": "Workflow instances"
+            },
             "WORKFLOW_DETAILS": {
                "TITLE": "工作流详情",
                "CONFIGURATION": "工作流配置"
             },
             "WORKFLOW_OPERATIONS": {
-               "TITLE": "工作流操作"
+               "TITLE": "工作流操作",
+               "DETAILS_LINK": "操作",
+               "TABLE_HEADERS": {
+                  "TITLE": "标题",
+                  "STATUS": "状态",
+                  "DESCRIPTION": "说明"
+               }
             },
             "OPERATION_DETAILS": {
-               "TITLE": "操作详情"
+               "TITLE": "操作详情",
+               "TABLE_HEADERS": {
+                  "TITLE": "标题",
+                  "STATE": "状态",
+                  "DESCRIPTION": "说明",
+                  "EXECUTION_HOST": "Execution Host",
+                  "JOB": "Job",
+                  "TIME_IN_QUEUE": "Time in Queue",
+                  "STARTED": "已启动",
+                  "FINISHED": "已完成",
+                  "RETRY_STRATEGY": "Retry Strategy",
+                  "FAILED_ATTEMPTS": "Failed Attempts",
+                  "MAX_ATTEMPTS": "Max",
+                  "EXCEPTION_HANDLER_WORKFLOW": "Exception Handler Workflow",
+                  "FAIL_ON_ERROR": "Fail on Error"
+               }
             },
             "QUICKACTION_WORKFLOW_DETAILS": {
                "TITLE": "工作流详情"
@@ -932,6 +1019,7 @@
          "TABLE": {
             "CAPTION": "系列",
             "TITLE": "系列",
+            "HAS_EVENTS": "Contains events",
             "CREATORS": "组织者",
             "CONTRIBUTORS": "贡献者",
             "CREATED": "创建",
@@ -1484,7 +1572,8 @@
                "ACTIVE": "启动",
                "ENABLE": "启用BUMPER",
                "UPLOAD_LABEL": "上传视频",
-               "UPLOAD_BUTTON": "上载"
+               "UPLOAD_BUTTON": "上载",
+               "SELECT": "选择"
             },
             "TITLE": {
                "CAPTION": "标题",
@@ -1604,7 +1693,6 @@
          "ADD_COMMENT": "Add Comment"
       },
       "TABS": {
-         "PLAY": "播放",
          "EDIT": "编辑",
          "CAPTIONS": "字幕",
          "ANNOTATIONS": "批注"
@@ -1627,7 +1715,9 @@
       },
       "SEGMENTS": {
          "REMOVE_SEGMENT": "Remove Segment",
-         "USE_SEGMENT": "Use this Segment"
+         "USE_SEGMENT": "Use this Segment",
+         "START": "开始",
+         "END": "End"
       },
       "PLAYER": {
          "PLAY": "播放",
@@ -1696,7 +1786,10 @@
             "LABEL": "访问权限"
          },
          "COMMENTS": {
-            "LABEL": "评注"
+            "LABEL": "评注",
+            "NONE": "None",
+            "OPEN": "Open",
+            "RESOLVED": "已解决"
          },
          "CONTRIBUTORS": {
             "LABEL": "贡献者"
@@ -1904,5 +1997,86 @@
       "FINISHED_WITH_COMMENTS": "待办",
       "SCHEDULED": "已排程",
       "RECORDING": "录制"
+   },
+   "HOTKEYS": {
+      "CHEAT_SHEET": {
+         "TITLE": "Keyboard shortcuts",
+         "HINT": "This page lists the currently available keyboard shortcuts. Note that these might change depending on what page you are currently visiting."
+      },
+      "KEYS": {
+         "CTRL": "Ctrl",
+         "ALT": "Alt",
+         "OPTION": "⌥",
+         "SPACE": "Space",
+         "BACKSPACE": "⌫",
+         "LEFT": "←",
+         "RIGHT": "→",
+         "UP": "↑",
+         "DOWN": "↓",
+         "COMMAND": "⌘",
+         "SHIFT": "⇧",
+         "RETURN": "⏎",
+         "ENTER": "⏎",
+         "PLUS": "+",
+         "TAB": "↹",
+         "CAPSLOCK": "⇪",
+         "ESC": "Esc",
+         "ESCAPE": "Esc",
+         "PAGEUP": "Page↑",
+         "PAGEDOWN": "Page↓",
+         "END": "End",
+         "HOME": "Home",
+         "INS": "Ins",
+         "DEL": "Del"
+      },
+      "GROUPS": {
+         "GENERAL": "一般",
+         "PLAYER": "Player",
+         "EDITOR": "编辑"
+      },
+      "DESCRIPTIONS": {
+         "GENERAL": {
+            "MAIN_MENU": "Main menu",
+            "SELECT_NEXT_DASHBOARD_FILTER": "Select next dashboard filter",
+            "SELECT_PREVIOUS_DASHBOARD_FILTER": "Select previous dashboard filter",
+            "REMOVE_FILTERS": "清除所有过滤器",
+            "EVENT_VIEW": "事件",
+            "SERIES_VIEW": "系列",
+            "NEW_EVENT": "增加事件",
+            "NEW_SERIES": "增加系列",
+            "CHEAT_SHEET": "Keyboard shortcuts"
+         },
+         "PLAYER": {
+            "PLAY_PAUSE": "Play/pause",
+            "PREVIOUS_FRAME": "前一帧",
+            "NEXT_FRAME": "下一帧",
+            "STEP_BACKWARD": "Jump 10s back",
+            "STEP_FORWARD": "Jump 10s forward",
+            "PREVIOUS_SEGMENT": "Previous segment/jump to start",
+            "NEXT_SEGMENT": "Next segment/jump to end",
+            "VOLUME_UP": "Volume up",
+            "VOLUME_DOWN": "Volume down",
+            "MUTE": "Mute/unmute"
+         },
+         "EDITOR": {
+            "SPLIT_AT_CURRENT_TIME": "分割",
+            "CUT_SELECTED_SEGMENT": "切段",
+            "PLAY_CURRENT_SEGMENT": "Play current segment",
+            "CLEAR_LIST": "Clear segment",
+            "PLAY_CURRENT_SEGMENT_WITH_PRE-ROLL": "Replay segment with pre-roll",
+            "PLAY_ENDING_OF_CURRENT_SEGMENT": "End of segment"
+         }
+      }
+   },
+   "AGENTS": {
+      "STATUS": {
+         "CAPTURING": "Capturing",
+         "ERROR": "错误",
+         "IDLE": "Idle",
+         "OFFLINE": "离线",
+         "SHUTTING_DOWN": "Shutting down",
+         "UNKNOWN": "Unknown",
+         "UPLOADING": "正在上传"
+      }
    }
 }

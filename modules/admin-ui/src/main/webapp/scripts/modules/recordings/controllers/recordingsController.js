@@ -30,7 +30,8 @@ angular.module('adminNg.controllers')
             columns: [{
                 name:  'status',
                 template: 'modules/recordings/partials/recordingStatusCell.html',
-                label: 'RECORDINGS.RECORDINGS.TABLE.STATUS'
+                label: 'RECORDINGS.RECORDINGS.TABLE.STATUS',
+                translate: true
             }, {
                 template: 'modules/recordings/partials/recordingsNameCell.html',
                 name:  'name',
@@ -62,8 +63,12 @@ angular.module('adminNg.controllers')
                 Table.fetch();
                 Modal.$scope.close();
                 Notifications.add('success', 'LOCATION_DELETED');
-            }, function () {
-                Notifications.add('error', 'LOCATION_NOT_DELETED');
+            }, function (error) {
+                if (error.status === 401) {
+                    Notifications.add('error', 'LOCATION_NOT_DELETED_NOT_AUTHORIZED');
+                } else {
+                    Notifications.add('error', 'LOCATION_NOT_DELETED');
+                }
             });
         };
     }

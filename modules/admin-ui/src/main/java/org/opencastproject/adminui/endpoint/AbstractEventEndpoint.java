@@ -120,6 +120,7 @@ import org.opencastproject.security.api.UnauthorizedException;
 import org.opencastproject.security.api.User;
 import org.opencastproject.security.urlsigning.exception.UrlSigningException;
 import org.opencastproject.security.urlsigning.service.UrlSigningService;
+import org.opencastproject.security.util.SecurityUtil;
 import org.opencastproject.systems.OpencastConstants;
 import org.opencastproject.util.DateTimeSupport;
 import org.opencastproject.util.Jsons.Val;
@@ -170,6 +171,7 @@ import java.net.URI;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -298,6 +300,47 @@ public abstract class AbstractEventEndpoint {
 
   }
 
+  /* As the list of event ids can grow large, we use a POST request to avoid problems with too large query strings */
+  @POST
+  @Path("workflowProperties")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RestQuery(name = "workflowProperties", description = "Returns workflow properties for the specified events",
+             returnDescription = "The workflow properties for every event as JSON", restParameters = {
+                @RestParameter(name = "eventIds", description = "A JSON array of ids of the events", isRequired = true, type = RestParameter.Type.STRING)},
+             reponses = {
+                @RestResponse(description = "Returns the workflow properties for the events as JSON", responseCode = HttpServletResponse.SC_OK),
+                @RestResponse(description = "The list of ids could not be parsed into a json list.", responseCode = HttpServletResponse.SC_BAD_REQUEST)
+              })
+  public Response getEventWorkflowProperties(@FormParam("eventIds") String eventIds) throws UnauthorizedException {
+    if (StringUtils.isBlank(eventIds)) {
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+
+    JSONParser parser = new JSONParser();
+    List<String> ids;
+    try {
+      ids = (List<String>) parser.parse(eventIds);
+    } catch (org.json.simple.parser.ParseException e) {
+      logger.error("Unable to parse '{}'", eventIds, e);
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    } catch (ClassCastException e) {
+      logger.error("Unable to cast '{}'", eventIds, e);
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+
+    final Map<String, Map<String, String>> eventWithProperties = getIndexService().getEventWorkflowProperties(ids);
+    final Map<String, Field> jsonEvents = new HashMap<>();
+    for (Entry<String, Map<String, String>> event : eventWithProperties.entrySet()) {
+      final Collection<Field> jsonProperties = new ArrayList<>();
+      for (Entry<String, String> property : event.getValue().entrySet()) {
+        jsonProperties.add(f(property.getKey(),property.getValue()));
+      }
+      jsonEvents.put(event.getKey(), f(event.getKey(), obj(jsonProperties)));
+    }
+    return okJson(obj(jsonEvents));
+  }
+
+
   @GET
   @Path("catalogAdapters")
   @Produces(MediaType.APPLICATION_JSON)
@@ -335,10 +378,10 @@ public abstract class AbstractEventEndpoint {
   @RestQuery(name = "deleteevent", description = "Delete a single event.", returnDescription = "Ok if the event has been deleted.", pathParameters = {
           @RestParameter(name = "eventId", isRequired = true, description = "The id of the event to delete.", type = STRING), }, reponses = {
                   @RestResponse(responseCode = SC_OK, description = "The event has been deleted."),
-                  @RestResponse(responseCode = HttpServletResponse.SC_NOT_FOUND, description = "The event could not be found."),
                   @RestResponse(responseCode = HttpServletResponse.SC_UNAUTHORIZED, description = "If the current user is not authorized to perform this action") })
-  public Response deleteEvent(@PathParam("eventId") String id) throws NotFoundException, UnauthorizedException {
+  public Response deleteEvent(@PathParam("eventId") String id) throws UnauthorizedException, SearchIndexException {
     try {
+      checkAgentAccessForEvent(id);
       if (!getIndexService().removeEvent(id))
         return Response.serverError().build();
     } catch (NotFoundException e) {
@@ -362,7 +405,7 @@ public abstract class AbstractEventEndpoint {
           @RestResponse(description = "Events have been deleted", responseCode = HttpServletResponse.SC_OK),
           @RestResponse(description = "The list of ids could not be parsed into a json list.", responseCode = HttpServletResponse.SC_BAD_REQUEST),
           @RestResponse(description = "If the current user is not authorized to perform this action", responseCode = HttpServletResponse.SC_UNAUTHORIZED) })
-  public Response deleteEvents(String eventIdsContent) throws UnauthorizedException {
+  public Response deleteEvents(String eventIdsContent) throws UnauthorizedException, SearchIndexException {
     if (StringUtils.isBlank(eventIdsContent)) {
       return Response.status(Response.Status.BAD_REQUEST).build();
     }
@@ -384,6 +427,7 @@ public abstract class AbstractEventEndpoint {
     for (Object eventIdObject : eventIdsJsonArray) {
       String eventId = eventIdObject.toString();
       try {
+        checkAgentAccessForEvent(eventId);
         if (!getIndexService().removeEvent(eventId)) {
           result.addServerError(eventId);
         } else {
@@ -391,6 +435,8 @@ public abstract class AbstractEventEndpoint {
         }
       } catch (NotFoundException e) {
         result.addNotFound(eventId);
+      } catch (UnauthorizedException e) {
+        result.addUnauthorized(eventId);
       }
     }
     return Response.ok(result.toJson()).build();
@@ -542,6 +588,12 @@ public abstract class AbstractEventEndpoint {
       agentId = Opt.some(schedulingJson.getString(SCHEDULING_AGENT_ID_KEY));
       logger.trace("Updating agent id of event '{}' from '{}' to '{}'",
         event.getIdentifier(), technicalMetadata.getAgentId(), agentId);
+    }
+
+    // Check if we are allowed to re-schedule on this agent
+    checkAgentAccessForAgent(technicalMetadata.getAgentId());
+    if (agentId.isSome()) {
+      checkAgentAccessForAgent(agentId.get());
     }
 
     Opt<Date> start = Opt.none();
@@ -764,6 +816,7 @@ public abstract class AbstractEventEndpoint {
       } else {
         MediaPackage mediaPackage = getIndexService().getEventMediapackage(optEvent.get());
         mediaPackage = getAuthorizationService().setAcl(mediaPackage, AclScope.Episode, accessControlList).getA();
+        // We could check agent access here if we want to forbid updating ACLs for users without access.
         getSchedulerService().updateEvent(eventId, Opt.<Date> none(), Opt.<Date> none(), Opt.<String> none(),
                 Opt.<Set<String>> none(), some(mediaPackage), Opt.<Map<String, String>> none(),
                 Opt.<Map<String, String>> none(), Opt.<Opt<Boolean>> none(), SchedulerService.ORIGIN);
@@ -1170,7 +1223,7 @@ public abstract class AbstractEventEndpoint {
       return notFoundJson(JSONUtils.setToJSON(notFoundIds));
     }
 
-    final Map<String, List<MediaPackage>> conflicts = new HashMap<>();
+    final Map<String, List<JValue>> conflicts = new HashMap<>();
     events.values().forEach(e -> e.ifPresent(event -> {
       try {
         if (instructions.getScheduling() != null) {
@@ -1180,13 +1233,42 @@ public abstract class AbstractEventEndpoint {
           final Date end = Date.from(Instant.parse((String) scheduling.get(SCHEDULING_END_KEY)));
           final String agentId = Optional.ofNullable((String) scheduling.get(SCHEDULING_AGENT_ID_KEY))
             .orElse(event.getAgentId());
-          final List<MediaPackage> conflicting = getSchedulerService().findConflictingEvents(agentId, start, end);
-          if (conflicting != null && !conflicting.isEmpty() && !(
-            conflicting.size() == 1 && conflicting.get(0).getIdentifier().toString().equals(event.getIdentifier()))) {
-            conflicts.put(event.getIdentifier(), conflicting);
+
+          final List<JValue> currentConflicts = new ArrayList<>();
+
+          // Check for conflicts between the events themselves
+          events.values().forEach(oe -> oe.ifPresent(otherEvent -> {
+            if (otherEvent.getIdentifier().equals(event.getIdentifier())) {
+              // don't check event against itself
+              return;
+            }
+            final JSONObject otherScheduling = BulkUpdateUtil.addSchedulingDates(otherEvent, instructions.getScheduling());
+            final Date otherStart = Date.from(Instant.parse((String) otherScheduling.get(SCHEDULING_START_KEY)));
+            final Date otherEnd = Date.from(Instant.parse((String) otherScheduling.get(SCHEDULING_END_KEY)));
+            final String otherAgentId = Optional.ofNullable((String) otherScheduling.get(SCHEDULING_AGENT_ID_KEY))
+              .orElse(otherEvent.getAgentId());
+            if (!otherAgentId.equals(agentId)) {
+              // different agent -> no conflict
+              return;
+            }
+            if (start.before(otherEnd) && end.after(otherStart)) {
+              // conflict
+              currentConflicts.add(convertEventToConflictingObject(DateTimeSupport.toUTC(otherStart.getTime()),
+                DateTimeSupport.toUTC(otherEnd.getTime()), otherEvent.getTitle()));
+            }
+          }));
+
+          // Check for conflicts with other events from the database
+          final List<MediaPackage> conflicting = getSchedulerService().findConflictingEvents(agentId, start, end)
+            .stream()
+            .filter(mp -> !events.keySet().contains(mp.getIdentifier().toString()))
+            .collect(Collectors.toList());
+          if (conflicting != null && !conflicting.isEmpty()) {
+            currentConflicts.addAll(convertToConflictObjects(event.getIdentifier(), conflicting));
           }
+          conflicts.put(event.getIdentifier(), currentConflicts);
         }
-      } catch (SchedulerException | UnauthorizedException exception) {
+      } catch (SchedulerException | UnauthorizedException | SearchIndexException exception) {
         throw new RuntimeException(exception);
       }
     }));
@@ -1194,13 +1276,8 @@ public abstract class AbstractEventEndpoint {
     if (!conflicts.isEmpty()) {
       final List<JValue> responseJson = new ArrayList<>();
       conflicts.forEach((eventId, conflictingEvents) -> {
-        try {
-          final List<JValue> eventsJSON = convertToConflictObjects(eventId, conflictingEvents);
-          if (!eventsJSON.isEmpty()) {
-            responseJson.add(obj(f("eventId", eventId), f("conflicts", arr(eventsJSON))));
-          }
-        } catch (SearchIndexException e) {
-          throw new RuntimeException(e);
+        if (!conflictingEvents.isEmpty()) {
+          responseJson.add(obj(f("eventId", eventId), f("conflicts", arr(conflictingEvents))));
         }
       });
       if (!responseJson.isEmpty()) {
@@ -1463,6 +1540,8 @@ public abstract class AbstractEventEndpoint {
 
         if (caMetadataOpt.isNone() && workflowConfigOpt.isNone())
           return Response.noContent().build();
+
+        checkAgentAccessForAgent(optEvent.get().getAgentId());
 
         getSchedulerService().updateEvent(id, Opt.<Date> none(), Opt.<Date> none(), Opt.<String> none(),
                 Opt.<Set<String>> none(), Opt.<MediaPackage> none(), workflowConfigOpt, caMetadataOpt,
@@ -1837,6 +1916,7 @@ public abstract class AbstractEventEndpoint {
   public Response updateEventOptOut(@PathParam("eventId") String eventId, @PathParam("optout") boolean optout)
           throws NotFoundException, UnauthorizedException {
     try {
+      checkAgentAccessForEvent(eventId);
       getIndexService().changeOptOutStatus(eventId, optout, getIndex());
       return Response.noContent().build();
     } catch (SchedulerException e) {
@@ -2092,14 +2172,21 @@ public abstract class AbstractEventEndpoint {
         if (StringUtils.isNotEmpty(eventId) && eventId.equals(e.getIdentifier())) {
           continue;
         }
-        eventsJSON.add(obj(f("start", v(e.getTechnicalStartTime())), f("end", v(e.getTechnicalEndTime())),
-          f("title", v(e.getTitle()))));
+        eventsJSON.add(convertEventToConflictingObject(e.getTechnicalStartTime(), e.getTechnicalEndTime(), e.getTitle()));
       } else {
         logger.warn("Index out of sync! Conflicting event catalog {} not found on event index!",
           event.getIdentifier().compact());
       }
     }
     return eventsJSON;
+  }
+
+  private JValue convertEventToConflictingObject(final String start, final String end, final String title) {
+    return obj(
+      f("start", v(start)),
+      f("end", v(end)),
+      f("title", v(title))
+    );
   }
 
   @POST
@@ -2610,5 +2697,16 @@ public abstract class AbstractEventEndpoint {
     }
   }
 
+  private void checkAgentAccessForEvent(final String eventId) throws UnauthorizedException, SearchIndexException {
+    final Opt<Event> event = getIndexService().getEvent(eventId, getIndex());
+    if (event.isNone() || !event.get().getEventStatus().contains("SCHEDULE")) {
+      return;
+    }
+    SecurityUtil.checkAgentAccess(getSecurityService(), event.get().getAgentId());
+  }
+
+  private void checkAgentAccessForAgent(final String agentId) throws UnauthorizedException {
+    SecurityUtil.checkAgentAccess(getSecurityService(), agentId);
+  }
 
 }

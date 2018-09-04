@@ -22,8 +22,8 @@
 
 // Controller for the "edit scheduled events" wizard
 angular.module('adminNg.controllers')
-    .controller('EditEventsCtrl', ['$scope', 'Table', 'Notifications', 'EventBulkEditResource', 'SeriesResource', 'CaptureAgentsResource', 'EventsSchedulingResource', 'JsHelper', 'SchedulingHelperService', 'WizardHandler', 'Language', '$translate', 'decorateWithTableRowSelection',
-function ($scope, Table, Notifications, EventBulkEditResource, SeriesResource, CaptureAgentsResource, EventsSchedulingResource, JsHelper, SchedulingHelperService, WizardHandler, Language, $translate, decorateWithTableRowSelection) {
+    .controller('EditEventsCtrl', ['$scope', 'Table', 'Notifications', 'EventBulkEditResource', 'SeriesResource', 'CaptureAgentsResource', 'EventsSchedulingResource', 'JsHelper', 'SchedulingHelperService', 'WizardHandler', 'Language', '$translate', 'decorateWithTableRowSelection','$timeout', 'Modal',
+function ($scope, Table, Notifications, EventBulkEditResource, SeriesResource, CaptureAgentsResource, EventsSchedulingResource, JsHelper, SchedulingHelperService, WizardHandler, Language, $translate, decorateWithTableRowSelection, $timeout, Modal) {
     var me = this;
     var SCHEDULING_CONTEXT = 'event-scheduling';
 
@@ -54,6 +54,21 @@ function ($scope, Table, Notifications, EventBulkEditResource, SeriesResource, C
             $scope.seriesResults[row.title] = row.id;
         });
     });
+
+    $scope.keyUp = function (event) {
+        switch (event.keyCode) {
+        case 27:
+            $scope.close();
+            break;
+        }
+    };
+
+    $scope.close = function() {
+        if (me.notificationConflict) {
+            Notifications.remove(me.notificationConflict, SCHEDULING_CONTEXT);
+        }
+        Modal.$scope.close();
+    };
 
     // Given a series id, get me the title (we need this for the summary prettification)
     var seriesTitleForId = function(id) {
@@ -208,6 +223,7 @@ function ($scope, Table, Notifications, EventBulkEditResource, SeriesResource, C
     this.noConflictsDetected = function () {
         me.clearConflicts();
         $scope.checkingConflicts = false;
+        $scope.generateEventSummariesAndContinue();
     };
 
     // What we send to the server is slightly different than what we
@@ -236,20 +252,12 @@ function ($scope, Table, Notifications, EventBulkEditResource, SeriesResource, C
         if ($scope.conflictCheckingEnabled === false) {
             return;
         }
-        return new Promise(function(resolve, reject) {
-            $scope.checkingConflicts = true;
-            var payload = {
-                events: $scope.getSelectedIds(),
-                scheduling: postprocessScheduling()
-            };
-            EventBulkEditResource.conflicts(payload, me.noConflictsDetected, me.conflictsDetected)
-                .$promise.then(function() {
-                    resolve();
-                })
-                .catch(function(err) {
-                    reject();
-                });
-        });
+        $scope.checkingConflicts = true;
+        var payload = {
+            events: $scope.getSelectedIds(),
+            scheduling: postprocessScheduling()
+        };
+        EventBulkEditResource.conflicts(payload, me.noConflictsDetected, me.conflictsDetected);
     };
 
     $scope.checkingConflicts = false;
@@ -288,7 +296,7 @@ function ($scope, Table, Notifications, EventBulkEditResource, SeriesResource, C
                 id: "title",
                 label: "EVENTS.EVENTS.DETAILS.METADATA.TITLE",
                 readOnly: false,
-                required: true,
+                required: false,
                 type: "text",
                 value: getMetadataPart(getterForMetadata('title'))
             },
@@ -342,7 +350,7 @@ function ($scope, Table, Notifications, EventBulkEditResource, SeriesResource, C
     };
 
     $scope.rowsValid = function() {
-        return !$scope.nonScheduleSelected() && $scope.hasAnySelected();
+        return !$scope.nonScheduleSelected() && $scope.hasAnySelected() && $scope.hasAllAgentsAccess();
     };
 
     $scope.generateEventSummariesAndContinue = function() {
@@ -368,8 +376,8 @@ function ($scope, Table, Notifications, EventBulkEditResource, SeriesResource, C
                     type: 'EVENTS.EVENTS.TABLE.WEEKDAY',
                     // Might be better to actually use the promise rather than using instant,
                     // but it's difficult with the two-way binding here.
-                    previous: $translate.instant(valueWeekDay.translation),
-                    next: $translate.instant(JsHelper.weekdayTranslation($scope.scheduling.weekday))
+                    previous: $translate.instant(valueWeekDay.translationLong),
+                    next: $translate.instant(JsHelper.weekdayTranslation($scope.scheduling.weekday, true))
                 });
             }
 
@@ -458,7 +466,9 @@ function ($scope, Table, Notifications, EventBulkEditResource, SeriesResource, C
                 });
             }
         });
-        nextWizardStep();
+        $timeout(function() {
+            nextWizardStep();
+        });
     };
 
     $scope.noChanges = function() {
@@ -482,6 +492,14 @@ function ($scope, Table, Notifications, EventBulkEditResource, SeriesResource, C
         Notifications.add('error', 'EVENTS_NOT_UPDATED', 'global', -1);
     };
 
+    $scope.nextButtonText = function() {
+        if ($scope.checkingConflicts) {
+            return 'BULK_ACTIONS.EDIT_EVENTS.CONFLICT_CHECK_RUNNING';
+        } else {
+            return 'WIZARD.NEXT_STEP';
+        }
+    };
+
     $scope.submitButton = false;
     $scope.submit = function () {
         $scope.submitButton = true;
@@ -503,5 +521,27 @@ function ($scope, Table, Notifications, EventBulkEditResource, SeriesResource, C
             EventBulkEditResource.update(payload, onSuccess, onFailure);
         }
     };
+
+    $scope.hasAgentAccess = function (agent, index, array) {
+        return SchedulingHelperService.hasAgentAccess(agent.id);
+    };
+
+    $scope.noAgentAccess = function (row) {
+        return !$scope.nonSchedule(row) && !SchedulingHelperService.hasAgentAccess(row.agent_id);
+    };
+
+    $scope.hasAllAgentsAccess = function () {
+        for (var i = 0; i < $scope.rows.length; i++) {
+            var row = $scope.rows[i];
+            if (!row.selected || $scope.nonSchedule(row)) {
+                continue;
+            }
+            if (!SchedulingHelperService.hasAgentAccess(row.agent_id)) {
+                return false;
+            }
+        }
+        return true;
+    };
+
     decorateWithTableRowSelection($scope);
 }]);

@@ -35,11 +35,16 @@ import static org.opencastproject.util.doc.rest.RestParameter.Type.STRING;
 import org.opencastproject.adminui.util.TextFilter;
 import org.opencastproject.capture.CaptureParameters;
 import org.opencastproject.capture.admin.api.Agent;
+import org.opencastproject.capture.admin.api.AgentState;
+import org.opencastproject.capture.admin.api.CaptureAgentAdminRoleProvider;
 import org.opencastproject.capture.admin.api.CaptureAgentStateService;
 import org.opencastproject.index.service.resources.list.query.AgentsListQuery;
 import org.opencastproject.index.service.util.RestUtils;
 import org.opencastproject.matterhorn.search.SearchQuery.Order;
 import org.opencastproject.matterhorn.search.SortCriterion;
+import org.opencastproject.security.api.SecurityService;
+import org.opencastproject.security.api.UnauthorizedException;
+import org.opencastproject.security.util.SecurityUtil;
 import org.opencastproject.util.NotFoundException;
 import org.opencastproject.util.SmartIterator;
 import org.opencastproject.util.data.Option;
@@ -94,6 +99,10 @@ public class CaptureAgentsEndpoint {
   /** The capture agent service */
   private CaptureAgentStateService service;
 
+  private CaptureAgentAdminRoleProvider roleProvider;
+
+  private SecurityService securityService;
+
   /**
    * Sets the capture agent service
    *
@@ -102,6 +111,14 @@ public class CaptureAgentsEndpoint {
    */
   public void setCaptureAgentService(CaptureAgentStateService service) {
     this.service = service;
+  }
+
+  public void setRoleProvider(CaptureAgentAdminRoleProvider roleProvider) {
+    this.roleProvider = roleProvider;
+  }
+
+  public void setSecurityService(SecurityService securityService) {
+    this.securityService = securityService;
   }
 
   @GET
@@ -203,11 +220,16 @@ public class CaptureAgentsEndpoint {
   @RestQuery(name = "removeAgent", description = "Remove record of a given capture agent", pathParameters = { @RestParameter(name = "name", description = "The name of a given capture agent", isRequired = true, type = RestParameter.Type.STRING) }, restParameters = {}, reponses = {
           @RestResponse(description = "{agentName} removed", responseCode = HttpServletResponse.SC_OK),
           @RestResponse(description = "The agent {agentname} does not exist", responseCode = HttpServletResponse.SC_NOT_FOUND) }, returnDescription = "")
-  public Response removeAgent(@PathParam("name") String agentName) throws NotFoundException {
+  public Response removeAgent(@PathParam("name") String agentName) throws NotFoundException, UnauthorizedException {
     if (service == null)
       return Response.serverError().status(Response.Status.SERVICE_UNAVAILABLE).build();
 
+    SecurityUtil.checkAgentAccess(securityService, agentName);
+
     service.removeAgent(agentName);
+
+    // Remove the corresponding capture agent roles
+    this.roleProvider.removeRole(agentName);
 
     logger.debug("The agent {} was successfully removed", agentName);
     return Response.status(SC_OK).build();
@@ -252,7 +274,7 @@ public class CaptureAgentsEndpoint {
    */
   private JValue generateJsonAgent(Agent agent, boolean withInputs, boolean details) {
     List<Field> fields = new ArrayList<>();
-    fields.add(f("Status", v(agent.getState(), Jsons.BLANK)));
+    fields.add(f("Status", v(AgentState.TRANSLATION_PREFIX + agent.getState().toUpperCase(), Jsons.BLANK)));
     fields.add(f("Name", v(agent.getName())));
     fields.add(f("Update", v(toUTC(agent.getLastHeardFrom()), Jsons.BLANK)));
     fields.add(f("URL", v(agent.getUrl(), Jsons.BLANK)));
@@ -301,5 +323,4 @@ public class CaptureAgentsEndpoint {
     }
     return arr(jsonDevices);
   }
-
 }

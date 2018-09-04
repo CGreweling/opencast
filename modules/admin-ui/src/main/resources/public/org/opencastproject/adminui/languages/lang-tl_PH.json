@@ -64,7 +64,13 @@
          "NAME": "Pangalan"
       },
       "ACTIONS": {
-         "CONFIRMATION": "Kailangan ang kumpirmasyon"
+         "CONFIRMATION": "Confirmation"
+      },
+      "WARNINGS": {
+         "SERIES_HAS_EVENTS": "This series does contain events. Deleting the series will not delete the events."
+      },
+      "ERRORS": {
+         "SERIES_HAS_EVENTS": "This series cannot be deleted as it still contains events."
       }
    },
    "MEDIAMODULE": "Module ng media",
@@ -74,7 +80,8 @@
       "HELP": "Tulong",
       "USERS_GUIDE": "Gabay sa gumagamit",
       "DOCUMENTATION": "Dokumentasyon",
-      "REST_DOC": "REST API Docs"
+      "REST_DOC": "REST API Docs",
+      "HOTKEY_CHEAT_SHEET": "Keyboard Shortcuts"
    },
    "NOTIFICATIONS": {
       "ACL_ADDED": "Ang polisiya sa pag-access ay nagawa na",
@@ -120,6 +127,7 @@
       "SERIES_NOT_UPDATED_ALL": "Wala sa mga serye ang maaring isalba",
       "EVENTS_DELETED": "Ang kaganapan ay natanggal na",
       "EVENTS_NOT_DELETED": "Ang (mga) kaganapan ay hindi matanggal",
+      "EVENTS_NOT_DELETED_NOT_AUTHORIZED": "The event could not be deleted, because you don't have the permission to do so.",
       "SERIES_DELETED": "Ang serye ay natanggal na",
       "SERIES_NOT_DELETED": "Ang serye ay hindi matanggal",
       "USER_BLACKLIST_CREATED": "Ang itim na listahan ay nagawa",
@@ -130,6 +138,7 @@
       "USER_BLACKLIST_NOT_DELETED": "Ang itim na listahan ay hindi matanggal",
       "LOCATION_DELETED": "Ang lokasyon ay natanggal na",
       "LOCATION_NOT_DELETED": "Ang lokasyon ay hindi matanggal",
+      "LOCATION_NOT_DELETED_NOT_AUTHORIZED": "The location could not be deleted, because you don't have the permission to do so.",
       "LOCATION_BLACKLIST_CREATED": "Ang itim na listahan ay nagawa",
       "LOCATION_BLACKLIST_NOT_CREATED": "Ang itim na listahan ay hindi magawa",
       "LOCATION_BLACKLIST_SAVED": "Ang itim na listahan ay naisalba",
@@ -146,8 +155,10 @@
       "EMAIL_SENT": "Ang mensahe ay naipadala na",
       "EMAIL_NOT_SENT": "Ang mensahe ay hindi maipadala",
       "CONFLICT_DETECTED": "Salungatan sa pag-iskedyul: itong bagong kaganapan ay nagkasabay sa isang umiiral na kaganapan. Mangyaring baguhin ang lokasyon, mga petsa, o oras.",
+      "CONFLICT_BULK_DETECTED": "Scheduling conflict: changing the events results in conflicts. Please change the location, dates or times.",
       "CONFLICT_ALREADY_ENDED": "Error sa pag-iskedyul: Ang kaganapan ay natapos na.",
       "CONFLICT_END_BEFORE_START": "Error sa pag-iskedyul: Ang wakas ng pag-iskedyul ay dapat mas huli kaysa sa simula.",
+      "CONFLICT_IN_THE_PAST": "The schedule could not be updated: You cannot schedule an event to be in the past.",
       "INVALID_ACL_RULES": "Ang mga patakaran ay dapat naglalaman ng balidong tungkulin at pagbasa o/at pagsulat ng (mga) karapatan.",
       "MISSING_ACL_RULES": "Isa o higit pang mga tungkulin na may pahintulot sa Pagbasa at Pagsulat ang kailangan!",
       "SAVED_ACL_RULES": "Ang mga patakaran sa pag-access ay naisalba.",
@@ -163,10 +174,12 @@
       "THEME_NAME_ALREADY_TAKEN": "Ang pangalan na ito ay nagamit na",
       "THEME_NAME_EMPTY": "Ang pangalan ay hindi pwedeng walang laman",
       "BUMPER_UPLOAD_ERROR": "Nagkaroon ng error habang inu-upload ang media",
+      "BUMPER_REQUIRED": "You must upload a bumper",
       "TRAILER_UPLOAD_ERROR": "Nagkaroon ng error hapang inu-upload ang media",
       "TITLE_UPLOAD_ERROR": "Nagkaroon ng error habang inu-upload ang media",
       "LICENSE_UPLOAD_ERROR": "Nagkaroon ng error habang inu-upload ang media",
       "WATERMARK_UPLOAD_ERROR": "Nagkaroon ng error habang inu-upload ang media",
+      "WATERMARK_REQUIRED": "You must upload a watermark",
       "THEME_UPLOAD_STARTED": "Ang media ay inu-upload…",
       "THEME_CREATED": "Ang tema ay nagawa na",
       "THEME_NOT_CREATED": "Ang tema ay hindi magawa",
@@ -193,7 +206,8 @@
       "DELETE": {
          "SERIES": {
             "CAPTION": "I-delete",
-            "BUTTON": "I-delete"
+            "BUTTON": "I-delete",
+            "CANNOT_DELETE": "The highlighted series cannot be deleted as they still contain events."
          },
          "EVENTS": {
             "CAPTION": "I-delete",
@@ -209,6 +223,7 @@
                "EVENTS_RETRACTED": "Mga kaganapan na babawiin",
                "RETRACT_WORKFLOW": "Workflow nang mga kaganapan sa pagbawi"
             },
+            "UNAUTHORIZED": "You are not authorized to delete the highlighted events. Please unselect them to continue.",
             "UNPUBLISHED": {
                "NONE": "Wala sa piniling mga kaganapan ang mabubura nang hindi nag-iiwang ng mga ulila na file."
             },
@@ -237,12 +252,42 @@
             "CONFIGURATION": "Konpigurasyon",
             "WORKFLOW": "Gawain"
          }
+      },
+      "EDIT_EVENTS": {
+         "CAPTION": "Edit scheduled events",
+         "CONFLICT_CHECK_RUNNING": "Conflict check is running…",
+         "GENERAL": {
+            "CAPTION": "Pangkalahatan",
+            "CANNOTSTART": "Highlighted event(s) cannot be processed, only scheduled events are supported.",
+            "NOCHANGES": "No changes to the events detected!",
+            "CONFLICT_FIRST_EVENT": "Changed event",
+            "CONFLICT_SECOND_EVENT": "Event in conflict",
+            "CANNOTEDITSCHEDULE": "For the highlighted events, you don't have the permission to edit scheduling information. You can continue, but you won't be able to edit scheduling information of any events at all."
+         },
+         "METADATA": {
+            "EDIT": "Edit metadata"
+         },
+         "SUMMARY": {
+            "CAPTION": "Buod",
+            "SINGLE_EVENT_CAPTION": "Event “{{ title }}”",
+            "TYPE": "Uri",
+            "PREVIOUS": "Old value",
+            "NEXT": "New value"
+         },
+         "EDIT": {
+            "CAPTION": "Edit",
+            "METADATA": "Metadata",
+            "SCHEDULING": "Pag-iskedyul"
+         }
       }
    },
    "DATES": {
       "TODAY": "Ngayon",
       "TOMORROW": "Bukas",
-      "YESTERDAY": "Kahapon"
+      "YESTERDAY": "Kahapon",
+      "THIS_WEEK": "This week",
+      "THIS_MONTH": "This month",
+      "THIS_YEAR": "This year"
    },
    "DATETIMES": {
       "TODAY": "Ngayon sa {{ time }}",
@@ -411,6 +456,7 @@
                "CAPTION": "I-upload ang asset",
                "SELECT_TYPE": "Pumili ng uri ng asset",
                "ADD": "Idagdag ang asset",
+               "NO_OPTIONS": "A list of asset options was not provided to this section of the web page!",
                "OPTION": {
                   "CLASS_HANDOUT_NOTES": "Klase ng handout ng mga tala",
                   "CAPTIONS_DFXP": "Mga caption ng DFXP",
@@ -426,7 +472,10 @@
                "ACL": "Patakaran sa pag-access"
             },
             "SUMMARY": {
-               "CAPTION": "Buod"
+               "CAPTION": "Buod",
+               "SOURCE": {
+                  "INPUT": "Input"
+               }
             },
             "WEEKDAYS": {
                "MO": "Mo",
@@ -436,6 +485,15 @@
                "FR": "Fr",
                "SA": "Sa",
                "SU": "Su"
+            },
+            "WEEKDAYSLONG": {
+               "MO": "Monday",
+               "TU": "Tuesday",
+               "WE": "Wednesday",
+               "TH": "Thursday",
+               "FR": "Friday",
+               "SA": "Saturday",
+               "SU": "Sunday"
             }
          },
          "NAVIGATION": {
@@ -454,6 +512,7 @@
             "SERIES": "Mga serye",
             "DATE": "Petsa",
             "START": "Simulan",
+            "END": "End",
             "STOP": "Ihinto",
             "STATUS": "Istado",
             "LOCATION": "Lokasyon",
@@ -468,6 +527,7 @@
             "PREVIOUS": "Nakaraan",
             "NOCONTENT": "Walang data na maaring magamit",
             "PUBLISHED": "Nai-publish",
+            "WEEKDAY": "Weekday",
             "TOOLTIP": {
                "START": "Filter for this start date",
                "SERIES": "Filter for this series",
@@ -475,8 +535,8 @@
                "LOCATION": "Filter for this location",
                "DETAILS": "Open event details",
                "DELETE": "Delete event",
-               "PREVIEW": "Open preview player",
                "EDITOR": "Open video Editor",
+               "EDITOR_NEEDS_CUTTING": "Open video Editor (a comment indicates that cutting the video has been requested)",
                "COMMENTS": "View comments",
                "PAUSED_WORKFLOW": "View paused workflow"
             }
@@ -504,17 +564,17 @@
          "DETAILS": {
             "HEADER": "Mga detalye ng kaganapan - {{resourceId}}",
             "TABS": {
-               "GENERAL": "Pangkalahatan",
                "METADATA": "Metadata",
                "EXTENDED-METADATA": "Metadata II",
                "ASSETS": "Mga asset",
+               "PUBLICATIONS": "Mga paglalathala",
                "SCHEDULING": "Pag-iskedyul",
                "WORKFLOWS": "Mga daloy ng trabaho",
                "ACCESS": "Patakaran sa pag-access",
                "COMMENTS": "Mga komento"
             },
-            "GENERAL": {
-               "PUBLICATION_STATUS": "Mga paglalathala",
+            "PUBLICATIONS": {
+               "CAPTION": "Mga paglalathala",
                "NO_PUBLICATIONS_AVAILABLE": "Itong kaganapan ay walang mga paglalathala",
                "PUBLICATION_DESCRIPTION": "This event has been published to the following publication channels:",
                "LIVE_EVENT_NOT_IN_PROGRESS": "This event is not currently in progress",
@@ -599,6 +659,8 @@
                "TYPE": "Uri",
                "SIZE": "Laki",
                "DETAILS": "Mga detalye",
+               "STREAMS": "Streams",
+               "PREVIEW": "Preview",
                "ATTACHMENTS": {
                   "TITLE": "Mga nakalakip",
                   "CAPTION": "Mga nakalakip",
@@ -806,6 +868,7 @@
                "ACTIONS": "Mga aksyon",
                "DETAILS": "Mga detalye",
                "DESCRIPTION": "",
+               "MORE_INFO": "More Information & Actions",
                "ID": "ID",
                "TYPE": "Uri",
                "TITLE": "Pamagat",
@@ -825,15 +888,39 @@
                   "DELETE": "Delete workflow instance"
                }
             },
+            "WORKFLOW_INSTANCES": {
+               "TITLE": "Workflow instances"
+            },
             "WORKFLOW_DETAILS": {
                "TITLE": "Mga detalye ng daloy ng trabaho",
                "CONFIGURATION": "Konpigurasyon ng daloy ng trabaho"
             },
             "WORKFLOW_OPERATIONS": {
-               "TITLE": "Mga operasyon ng daloy ng trabaho"
+               "TITLE": "Mga operasyon ng daloy ng trabaho",
+               "DETAILS_LINK": "Mga operasyon",
+               "TABLE_HEADERS": {
+                  "TITLE": "Pamagat",
+                  "STATUS": "Istado",
+                  "DESCRIPTION": "Paglalarawan"
+               }
             },
             "OPERATION_DETAILS": {
-               "TITLE": "Mga detalye ng operasyon"
+               "TITLE": "Mga detalye ng operasyon",
+               "TABLE_HEADERS": {
+                  "TITLE": "Pamagat",
+                  "STATE": "Istado",
+                  "DESCRIPTION": "Paglalarawan",
+                  "EXECUTION_HOST": "Execution Host",
+                  "JOB": "Job",
+                  "TIME_IN_QUEUE": "Time in Queue",
+                  "STARTED": "Nagsimula",
+                  "FINISHED": "Natapos",
+                  "RETRY_STRATEGY": "Retry Strategy",
+                  "FAILED_ATTEMPTS": "Failed Attempts",
+                  "MAX_ATTEMPTS": "Max",
+                  "EXCEPTION_HANDLER_WORKFLOW": "Exception Handler Workflow",
+                  "FAIL_ON_ERROR": "Fail on Error"
+               }
             },
             "QUICKACTION_WORKFLOW_DETAILS": {
                "TITLE": "Mga detalye ng daloy ng trabaho"
@@ -932,6 +1019,7 @@
          "TABLE": {
             "CAPTION": "Mga serye",
             "TITLE": "Mga serye",
+            "HAS_EVENTS": "Contains events",
             "CREATORS": "(mga) Organizer",
             "CONTRIBUTORS": "Mga nag-aambag(s)",
             "CREATED": "Ginawa",
@@ -1484,7 +1572,8 @@
                "ACTIVE": "Aktibo",
                "ENABLE": "Paganahin ang bumper",
                "UPLOAD_LABEL": "I-upload ang video",
-               "UPLOAD_BUTTON": "I-upload"
+               "UPLOAD_BUTTON": "I-upload",
+               "SELECT": "Pumili"
             },
             "TITLE": {
                "CAPTION": "Pamagat",
@@ -1604,7 +1693,6 @@
          "ADD_COMMENT": "Dagdagan ang komento"
       },
       "TABS": {
-         "PLAY": "Playback",
          "EDIT": "Patnugot",
          "CAPTIONS": "Mga kapsyon",
          "ANNOTATIONS": "Mga anotasyon"
@@ -1627,7 +1715,9 @@
       },
       "SEGMENTS": {
          "REMOVE_SEGMENT": "Tangalin ang segment",
-         "USE_SEGMENT": "Gamitin itong segment"
+         "USE_SEGMENT": "Gamitin itong segment",
+         "START": "Magsimula",
+         "END": "End"
       },
       "PLAYER": {
          "PLAY": "Laruin",
@@ -1696,7 +1786,10 @@
             "LABEL": "Patakaran sa pag-access"
          },
          "COMMENTS": {
-            "LABEL": "Mga komento"
+            "LABEL": "Mga komento",
+            "NONE": "None",
+            "OPEN": "Open",
+            "RESOLVED": "Malutas"
          },
          "CONTRIBUTORS": {
             "LABEL": "Mga nag-aambag"
@@ -1904,5 +1997,86 @@
       "FINISHED_WITH_COMMENTS": "Todo",
       "SCHEDULED": "Iskedyul",
       "RECORDING": "Ni-record"
+   },
+   "HOTKEYS": {
+      "CHEAT_SHEET": {
+         "TITLE": "Keyboard shortcuts",
+         "HINT": "This page lists the currently available keyboard shortcuts. Note that these might change depending on what page you are currently visiting."
+      },
+      "KEYS": {
+         "CTRL": "Ctrl",
+         "ALT": "Alt",
+         "OPTION": "⌥",
+         "SPACE": "Space",
+         "BACKSPACE": "⌫",
+         "LEFT": "←",
+         "RIGHT": "→",
+         "UP": "↑",
+         "DOWN": "↓",
+         "COMMAND": "⌘",
+         "SHIFT": "⇧",
+         "RETURN": "⏎",
+         "ENTER": "⏎",
+         "PLUS": "+",
+         "TAB": "↹",
+         "CAPSLOCK": "⇪",
+         "ESC": "Esc",
+         "ESCAPE": "Esc",
+         "PAGEUP": "Page↑",
+         "PAGEDOWN": "Page↓",
+         "END": "End",
+         "HOME": "Home",
+         "INS": "Ins",
+         "DEL": "Del"
+      },
+      "GROUPS": {
+         "GENERAL": "Pangkalahatan",
+         "PLAYER": "Player",
+         "EDITOR": "Patnugot"
+      },
+      "DESCRIPTIONS": {
+         "GENERAL": {
+            "MAIN_MENU": "Main menu",
+            "SELECT_NEXT_DASHBOARD_FILTER": "Select next dashboard filter",
+            "SELECT_PREVIOUS_DASHBOARD_FILTER": "Select previous dashboard filter",
+            "REMOVE_FILTERS": "Linisin ang mga salaan",
+            "EVENT_VIEW": "Mga kaganapan",
+            "SERIES_VIEW": "Mga serye",
+            "NEW_EVENT": "Dumagdag ng kaganapan",
+            "NEW_SERIES": "Dumagdag ng mga serye",
+            "CHEAT_SHEET": "Keyboard shortcuts"
+         },
+         "PLAYER": {
+            "PLAY_PAUSE": "Play/pause",
+            "PREVIOUS_FRAME": "Nakaraang frame",
+            "NEXT_FRAME": "Susunod na frame",
+            "STEP_BACKWARD": "Jump 10s back",
+            "STEP_FORWARD": "Jump 10s forward",
+            "PREVIOUS_SEGMENT": "Previous segment/jump to start",
+            "NEXT_SEGMENT": "Next segment/jump to end",
+            "VOLUME_UP": "Volume up",
+            "VOLUME_DOWN": "Volume down",
+            "MUTE": "Mute/unmute"
+         },
+         "EDITOR": {
+            "SPLIT_AT_CURRENT_TIME": "Hatiin",
+            "CUT_SELECTED_SEGMENT": "Putulin",
+            "PLAY_CURRENT_SEGMENT": "Play current segment",
+            "CLEAR_LIST": "Clear segment",
+            "PLAY_CURRENT_SEGMENT_WITH_PRE-ROLL": "Replay segment with pre-roll",
+            "PLAY_ENDING_OF_CURRENT_SEGMENT": "Kataposan sa segment"
+         }
+      }
+   },
+   "AGENTS": {
+      "STATUS": {
+         "CAPTURING": "Capturing",
+         "ERROR": "Error",
+         "IDLE": "Idle",
+         "OFFLINE": "Offline",
+         "SHUTTING_DOWN": "Shutting down",
+         "UNKNOWN": "Unknown",
+         "UPLOADING": "Nag-uupload"
+      }
    }
 }

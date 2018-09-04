@@ -64,7 +64,13 @@
          "NAME": "İsim"
       },
       "ACTIONS": {
-         "CONFIRMATION": "Onay gerekiyor"
+         "CONFIRMATION": "Confirmation"
+      },
+      "WARNINGS": {
+         "SERIES_HAS_EVENTS": "This series does contain events. Deleting the series will not delete the events."
+      },
+      "ERRORS": {
+         "SERIES_HAS_EVENTS": "This series cannot be deleted as it still contains events."
       }
    },
    "MEDIAMODULE": "Ortam Modülü",
@@ -74,7 +80,8 @@
       "HELP": "Yardım",
       "USERS_GUIDE": "Kullanım Kılavuzu",
       "DOCUMENTATION": "Dökümantasyon",
-      "REST_DOC": "REST API Dökümanları"
+      "REST_DOC": "REST API Dökümanları",
+      "HOTKEY_CHEAT_SHEET": "Keyboard Shortcuts"
    },
    "NOTIFICATIONS": {
       "ACL_ADDED": "Erişim ilkesi oluşturuldu",
@@ -120,6 +127,7 @@
       "SERIES_NOT_UPDATED_ALL": "Serilerin hiçbiri kaydedilemedi",
       "EVENTS_DELETED": "Etkinlik silindi",
       "EVENTS_NOT_DELETED": "Etkinlik(ler) silinemedi",
+      "EVENTS_NOT_DELETED_NOT_AUTHORIZED": "The event could not be deleted, because you don't have the permission to do so.",
       "SERIES_DELETED": "Seriler silindi",
       "SERIES_NOT_DELETED": "Seriler silinemedi",
       "USER_BLACKLIST_CREATED": "Kara liste oluşturuldu",
@@ -130,6 +138,7 @@
       "USER_BLACKLIST_NOT_DELETED": "Kara liste silinemedi",
       "LOCATION_DELETED": "Konum silindi",
       "LOCATION_NOT_DELETED": "Konum silinemedi",
+      "LOCATION_NOT_DELETED_NOT_AUTHORIZED": "The location could not be deleted, because you don't have the permission to do so.",
       "LOCATION_BLACKLIST_CREATED": "Kara liste oluşturuldu",
       "LOCATION_BLACKLIST_NOT_CREATED": "Kara liste oluşturulamadı",
       "LOCATION_BLACKLIST_SAVED": "Kara liste kaydedildi",
@@ -146,8 +155,10 @@
       "EMAIL_SENT": "Mesaj gönderildi",
       "EMAIL_NOT_SENT": "Mesaj gönderilemedi",
       "CONFLICT_DETECTED": "Zamanlama sorunu: yeni etkinlik eski etkinlikle çakışmakta. Lütfen konumu, tarihi ve zamanı değiştirin.",
+      "CONFLICT_BULK_DETECTED": "Scheduling conflict: changing the events results in conflicts. Please change the location, dates or times.",
       "CONFLICT_ALREADY_ENDED": "Zamanlama hatası: Etkinlik zaten bitmiş durumda.",
       "CONFLICT_END_BEFORE_START": "Zamanlama hatası: Bitiş zamanlaması başlangıçtan daha sonra olmalı.",
+      "CONFLICT_IN_THE_PAST": "The schedule could not be updated: You cannot schedule an event to be in the past.",
       "INVALID_ACL_RULES": "Kuralların okuma veya/ve yazma hakkında(haklarında) etkin bir rolü olmalı.",
       "MISSING_ACL_RULES": "En az bir Yazma ve Okuma yetkisi gerekli!",
       "SAVED_ACL_RULES": "Giriş kuralları kaydedildi.",
@@ -163,10 +174,12 @@
       "THEME_NAME_ALREADY_TAKEN": "Bu isim zaten kullanılıyor",
       "THEME_NAME_EMPTY": "İsim boş bırakılamaz",
       "BUMPER_UPLOAD_ERROR": "Medyayı yüklerken bir hata oluştu",
+      "BUMPER_REQUIRED": "You must upload a bumper",
       "TRAILER_UPLOAD_ERROR": "Medya yüklerken hata oluştu",
       "TITLE_UPLOAD_ERROR": "Medyayı yüklerken bir hata oluştu",
       "LICENSE_UPLOAD_ERROR": "Medyayı yüklerken bir hata oluştu",
       "WATERMARK_UPLOAD_ERROR": "Medyayı yüklerken bir hata oluştu",
+      "WATERMARK_REQUIRED": "You must upload a watermark",
       "THEME_UPLOAD_STARTED": "Medya şuanda yüklenmekte…",
       "THEME_CREATED": "Tema oluşturuldu",
       "THEME_NOT_CREATED": "Tema oluşturulamadı",
@@ -193,7 +206,8 @@
       "DELETE": {
          "SERIES": {
             "CAPTION": "Sil",
-            "BUTTON": "Sil"
+            "BUTTON": "Sil",
+            "CANNOT_DELETE": "The highlighted series cannot be deleted as they still contain events."
          },
          "EVENTS": {
             "CAPTION": "Sil",
@@ -209,6 +223,7 @@
                "EVENTS_RETRACTED": "Geri alınacak Etkinlikler",
                "RETRACT_WORKFLOW": "Etkinliklerin geri alınacaği iş akışı"
             },
+            "UNAUTHORIZED": "You are not authorized to delete the highlighted events. Please unselect them to continue.",
             "UNPUBLISHED": {
                "NONE": "Seçilen etkinliklerin hiçbiri atık dosyalar bırakmadan silinmez."
             },
@@ -237,12 +252,42 @@
             "CONFIGURATION": "Yapılandır",
             "WORKFLOW": "Görev"
          }
+      },
+      "EDIT_EVENTS": {
+         "CAPTION": "Edit scheduled events",
+         "CONFLICT_CHECK_RUNNING": "Conflict check is running…",
+         "GENERAL": {
+            "CAPTION": "Genel",
+            "CANNOTSTART": "Highlighted event(s) cannot be processed, only scheduled events are supported.",
+            "NOCHANGES": "No changes to the events detected!",
+            "CONFLICT_FIRST_EVENT": "Changed event",
+            "CONFLICT_SECOND_EVENT": "Event in conflict",
+            "CANNOTEDITSCHEDULE": "For the highlighted events, you don't have the permission to edit scheduling information. You can continue, but you won't be able to edit scheduling information of any events at all."
+         },
+         "METADATA": {
+            "EDIT": "Edit metadata"
+         },
+         "SUMMARY": {
+            "CAPTION": "Özet",
+            "SINGLE_EVENT_CAPTION": "Event “{{ title }}”",
+            "TYPE": "Tip",
+            "PREVIOUS": "Old value",
+            "NEXT": "New value"
+         },
+         "EDIT": {
+            "CAPTION": "Düzenle",
+            "METADATA": "Üstveri",
+            "SCHEDULING": "Zamanlanıyor"
+         }
       }
    },
    "DATES": {
       "TODAY": "Bugün",
       "TOMORROW": "Yarın",
-      "YESTERDAY": "Dün"
+      "YESTERDAY": "Dün",
+      "THIS_WEEK": "This week",
+      "THIS_MONTH": "This month",
+      "THIS_YEAR": "This year"
    },
    "DATETIMES": {
       "TODAY": "Bugün {{ time }}",
@@ -411,6 +456,7 @@
                "CAPTION": "Kıymet Yükle",
                "SELECT_TYPE": "Kıymet türü seç",
                "ADD": "Varlık Ekle",
+               "NO_OPTIONS": "A list of asset options was not provided to this section of the web page!",
                "OPTION": {
                   "CLASS_HANDOUT_NOTES": "Class handout notes",
                   "CAPTIONS_DFXP": "Captions DFXP",
@@ -426,7 +472,10 @@
                "ACL": "Erişim İlkesi"
             },
             "SUMMARY": {
-               "CAPTION": "Özet"
+               "CAPTION": "Özet",
+               "SOURCE": {
+                  "INPUT": "Input"
+               }
             },
             "WEEKDAYS": {
                "MO": "Pzt",
@@ -436,6 +485,15 @@
                "FR": "Cum",
                "SA": "Cmt",
                "SU": "Paz"
+            },
+            "WEEKDAYSLONG": {
+               "MO": "Monday",
+               "TU": "Tuesday",
+               "WE": "Wednesday",
+               "TH": "Thursday",
+               "FR": "Friday",
+               "SA": "Saturday",
+               "SU": "Sunday"
             }
          },
          "NAVIGATION": {
@@ -454,6 +512,7 @@
             "SERIES": "Seriler",
             "DATE": "Tarih",
             "START": "Başlat",
+            "END": "End",
             "STOP": "Durdur",
             "STATUS": "Durum",
             "LOCATION": "Konum",
@@ -468,6 +527,7 @@
             "PREVIOUS": "Önceki",
             "NOCONTENT": "Veri yok",
             "PUBLISHED": "Yayınlandı",
+            "WEEKDAY": "Weekday",
             "TOOLTIP": {
                "START": "Filter for this start date",
                "SERIES": "Filter for this series",
@@ -475,8 +535,8 @@
                "LOCATION": "Filter for this location",
                "DETAILS": "Open event details",
                "DELETE": "Delete event",
-               "PREVIEW": "Open preview player",
                "EDITOR": "Open video Editor",
+               "EDITOR_NEEDS_CUTTING": "Open video Editor (a comment indicates that cutting the video has been requested)",
                "COMMENTS": "View comments",
                "PAUSED_WORKFLOW": "View paused workflow"
             }
@@ -504,17 +564,17 @@
          "DETAILS": {
             "HEADER": "Etkinlik detayları - {{resourceId}}",
             "TABS": {
-               "GENERAL": "Genel",
                "METADATA": "Üstveri",
                "EXTENDED-METADATA": "Üstveri II",
                "ASSETS": "Varlıklar",
+               "PUBLICATIONS": "Yayınlar",
                "SCHEDULING": "Zamanlanıyor",
                "WORKFLOWS": "İş Akışları",
                "ACCESS": "Erişim İlkesi",
                "COMMENTS": "Yorumlar"
             },
-            "GENERAL": {
-               "PUBLICATION_STATUS": "Yayınlar",
+            "PUBLICATIONS": {
+               "CAPTION": "Yayınlar",
                "NO_PUBLICATIONS_AVAILABLE": "Etkinliğin hiçbir yayını yok",
                "PUBLICATION_DESCRIPTION": "This event has been published to the following publication channels:",
                "LIVE_EVENT_NOT_IN_PROGRESS": "This event is not currently in progress",
@@ -527,7 +587,7 @@
                "EXTERNAL_API": "External API Publication",
                "YOUTUBE": "Youtube",
                "OAIPMH": "OAI-PMH",
-               "SELECT_WORKFLOW": "İş Akışı Seç",
+               "SELECT_WORKFLOW": "İş akışı seçin",
                "SELECT_WORKFLOW_EMPTY": "Kullanılabilir iş alanları yok"
             },
             "MEDIA": {
@@ -599,6 +659,8 @@
                "TYPE": "Tür",
                "SIZE": "Boyut",
                "DETAILS": "Ayrıntılar",
+               "STREAMS": "Streams",
+               "PREVIEW": "Preview",
                "ATTACHMENTS": {
                   "TITLE": "Ekli Dosyalar",
                   "CAPTION": "Ekli Dosyalar",
@@ -806,6 +868,7 @@
                "ACTIONS": "Hareketler",
                "DETAILS": "Ayrıntılar",
                "DESCRIPTION": "",
+               "MORE_INFO": "More Information & Actions",
                "ID": "KİMLİK",
                "TYPE": "Tür",
                "TITLE": "Başlık",
@@ -825,15 +888,39 @@
                   "DELETE": "Delete workflow instance"
                }
             },
+            "WORKFLOW_INSTANCES": {
+               "TITLE": "Workflow instances"
+            },
             "WORKFLOW_DETAILS": {
                "TITLE": "İş akışı detayları",
                "CONFIGURATION": "İş akışı yapılandırılması"
             },
             "WORKFLOW_OPERATIONS": {
-               "TITLE": "İş akışı operasyonları"
+               "TITLE": "İş akışı operasyonları",
+               "DETAILS_LINK": "İşlemler",
+               "TABLE_HEADERS": {
+                  "TITLE": "Başlık",
+                  "STATUS": "Durum",
+                  "DESCRIPTION": "Açıklama"
+               }
             },
             "OPERATION_DETAILS": {
-               "TITLE": "Operasyon detayları"
+               "TITLE": "Operasyon detayları",
+               "TABLE_HEADERS": {
+                  "TITLE": "Başlık",
+                  "STATE": "Ülke",
+                  "DESCRIPTION": "Açıklama",
+                  "EXECUTION_HOST": "Execution Host",
+                  "JOB": "Job",
+                  "TIME_IN_QUEUE": "Time in Queue",
+                  "STARTED": "Başlatıldı",
+                  "FINISHED": "Tamamlandı",
+                  "RETRY_STRATEGY": "Retry Strategy",
+                  "FAILED_ATTEMPTS": "Failed Attempts",
+                  "MAX_ATTEMPTS": "Max",
+                  "EXCEPTION_HANDLER_WORKFLOW": "Exception Handler Workflow",
+                  "FAIL_ON_ERROR": "Fail on Error"
+               }
             },
             "QUICKACTION_WORKFLOW_DETAILS": {
                "TITLE": "İş akışı detayları"
@@ -932,6 +1019,7 @@
          "TABLE": {
             "CAPTION": "Diziler",
             "TITLE": "Diziler",
+            "HAS_EVENTS": "Contains events",
             "CREATORS": "Organizatör(ler)",
             "CONTRIBUTORS": "Katkı Sağlayan(lar)",
             "CREATED": "Oluşturuldu",
@@ -1484,7 +1572,8 @@
                "ACTIVE": "Aktif",
                "ENABLE": "Tampon etkinleştir",
                "UPLOAD_LABEL": "Video yükle",
-               "UPLOAD_BUTTON": "Yükle"
+               "UPLOAD_BUTTON": "Yükle",
+               "SELECT": "Seç"
             },
             "TITLE": {
                "CAPTION": "Başlık",
@@ -1604,7 +1693,6 @@
          "ADD_COMMENT": "Yorum Ekle"
       },
       "TABS": {
-         "PLAY": "Oynatma",
          "EDIT": "Düzenleyici",
          "CAPTIONS": "Altyazılar",
          "ANNOTATIONS": "Ek açıklamalar"
@@ -1627,7 +1715,9 @@
       },
       "SEGMENTS": {
          "REMOVE_SEGMENT": "Bölümü Sil",
-         "USE_SEGMENT": "Bu Bölümü kullan"
+         "USE_SEGMENT": "Bu Bölümü kullan",
+         "START": "Başla",
+         "END": "End"
       },
       "PLAYER": {
          "PLAY": "Oynat",
@@ -1696,7 +1786,10 @@
             "LABEL": "Erişim İlkesi"
          },
          "COMMENTS": {
-            "LABEL": "Yorumlar"
+            "LABEL": "Yorumlar",
+            "NONE": "None",
+            "OPEN": "Open",
+            "RESOLVED": "Çözüldü"
          },
          "CONTRIBUTORS": {
             "LABEL": "Katkıda Bulunanlar"
@@ -1904,5 +1997,86 @@
       "FINISHED_WITH_COMMENTS": "Yapılacaklar",
       "SCHEDULED": "Zamanlandı",
       "RECORDING": "Kayıt ediliyor"
+   },
+   "HOTKEYS": {
+      "CHEAT_SHEET": {
+         "TITLE": "Keyboard shortcuts",
+         "HINT": "This page lists the currently available keyboard shortcuts. Note that these might change depending on what page you are currently visiting."
+      },
+      "KEYS": {
+         "CTRL": "Ctrl",
+         "ALT": "Alt",
+         "OPTION": "⌥",
+         "SPACE": "Space",
+         "BACKSPACE": "⌫",
+         "LEFT": "←",
+         "RIGHT": "→",
+         "UP": "↑",
+         "DOWN": "↓",
+         "COMMAND": "⌘",
+         "SHIFT": "⇧",
+         "RETURN": "⏎",
+         "ENTER": "⏎",
+         "PLUS": "+",
+         "TAB": "↹",
+         "CAPSLOCK": "⇪",
+         "ESC": "Esc",
+         "ESCAPE": "Esc",
+         "PAGEUP": "Page↑",
+         "PAGEDOWN": "Page↓",
+         "END": "End",
+         "HOME": "Home",
+         "INS": "Ins",
+         "DEL": "Del"
+      },
+      "GROUPS": {
+         "GENERAL": "Genel",
+         "PLAYER": "Player",
+         "EDITOR": "Düzenleyici"
+      },
+      "DESCRIPTIONS": {
+         "GENERAL": {
+            "MAIN_MENU": "Main menu",
+            "SELECT_NEXT_DASHBOARD_FILTER": "Select next dashboard filter",
+            "SELECT_PREVIOUS_DASHBOARD_FILTER": "Select previous dashboard filter",
+            "REMOVE_FILTERS": "Tüm filtreleri temizle",
+            "EVENT_VIEW": "Etkinlikler",
+            "SERIES_VIEW": "Seri",
+            "NEW_EVENT": "Etkinlik ekle",
+            "NEW_SERIES": "Seri ekle",
+            "CHEAT_SHEET": "Keyboard shortcuts"
+         },
+         "PLAYER": {
+            "PLAY_PAUSE": "Play/pause",
+            "PREVIOUS_FRAME": "Önceki kare",
+            "NEXT_FRAME": "Sonraki kare",
+            "STEP_BACKWARD": "Jump 10s back",
+            "STEP_FORWARD": "Jump 10s forward",
+            "PREVIOUS_SEGMENT": "Previous segment/jump to start",
+            "NEXT_SEGMENT": "Next segment/jump to end",
+            "VOLUME_UP": "Volume up",
+            "VOLUME_DOWN": "Volume down",
+            "MUTE": "Mute/unmute"
+         },
+         "EDITOR": {
+            "SPLIT_AT_CURRENT_TIME": "Ayır",
+            "CUT_SELECTED_SEGMENT": "Kes",
+            "PLAY_CURRENT_SEGMENT": "Play current segment",
+            "CLEAR_LIST": "Clear segment",
+            "PLAY_CURRENT_SEGMENT_WITH_PRE-ROLL": "Replay segment with pre-roll",
+            "PLAY_ENDING_OF_CURRENT_SEGMENT": "Böüm sonu"
+         }
+      }
+   },
+   "AGENTS": {
+      "STATUS": {
+         "CAPTURING": "Capturing",
+         "ERROR": "Hata",
+         "IDLE": "Idle",
+         "OFFLINE": "Çevirim dışı",
+         "SHUTTING_DOWN": "Shutting down",
+         "UNKNOWN": "Unknown",
+         "UPLOADING": "Yükleniyor"
+      }
    }
 }
