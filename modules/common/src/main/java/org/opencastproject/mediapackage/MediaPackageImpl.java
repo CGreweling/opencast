@@ -76,7 +76,7 @@ import javax.xml.transform.stream.StreamSource;
  */
 @XmlType(name = "mediapackage", namespace = "http://mediapackage.opencastproject.org", propOrder = { "title", "series",
         "seriesTitle", "creators", "contributors", "subjects", "license", "language", "tracks", "catalogs",
-        "attachments", "publications", "valid" })
+        "attachments", "publications" })
 @XmlRootElement(name = "mediapackage", namespace = "http://mediapackage.opencastproject.org")
 @XmlAccessorType(XmlAccessType.NONE)
 public final class MediaPackageImpl implements MediaPackage {
@@ -125,9 +125,6 @@ public final class MediaPackageImpl implements MediaPackage {
   @XmlElementWrapper(name = "subjects")
   @XmlElement(name = "subject")
   private Set<String> subjects = null;
-
-  @XmlElement(name = "valid")
-  private String valid = null;
 
 
   /** id builder, for internal use only */
@@ -243,15 +240,6 @@ public final class MediaPackageImpl implements MediaPackage {
   @Override
   public Date getDate() {
     return new Date(startTime);
-  }
-  @Override
-  public void setValid(String valid) {
-    this.valid = valid;
-  }
-
-  @Override
-  public String getValid() {
-    return valid;
   }
 
   /**

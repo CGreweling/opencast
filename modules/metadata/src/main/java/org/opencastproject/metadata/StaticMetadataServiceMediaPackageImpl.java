@@ -98,8 +98,8 @@ public class StaticMetadataServiceMediaPackageImpl implements StaticMetadataServ
       }
 
       @Override
-      public Option<String> getValid() {
-        return null;
+      public Option<Date> getValid() {
+        return none();
       }
 
       @Override

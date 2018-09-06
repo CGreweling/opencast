@@ -40,6 +40,7 @@ import static org.opencastproject.metadata.dublincore.DublinCore.PROPERTY_SUBJEC
 import static org.opencastproject.metadata.dublincore.DublinCore.PROPERTY_TEMPORAL;
 import static org.opencastproject.metadata.dublincore.DublinCore.PROPERTY_TITLE;
 import static org.opencastproject.metadata.dublincore.DublinCore.PROPERTY_TYPE;
+import static org.opencastproject.metadata.dublincore.DublinCore.PROPERTY_VALID;
 import static org.opencastproject.util.data.Collections.head;
 import static org.opencastproject.util.data.Collections.list;
 import static org.opencastproject.util.data.Monadics.mlist;
@@ -140,6 +141,13 @@ public class StaticMetadataServiceDublinCoreImpl implements StaticMetadataServic
         return date != null ? date : Misc.<Date>chuck(new RuntimeException(a + " does not conform to W3C-DTF encoding scheme."));
       }
     });
+    final Option<Date> validDateOpt = option(episode.getFirst(PROPERTY_VALID)).map(new Function<String, Date>() {
+      @Override
+      public Date apply(String a) {
+        final Date date = EncodingSchemeUtils.decodeDate(a);
+        return date != null ? date : Misc.<Date>chuck(new RuntimeException(a + " does not conform to W3C-DTF encoding scheme."));
+      }
+    });
     final Option temporalOpt = option(episode.getFirstVal(PROPERTY_TEMPORAL)).map(dc2temporalValueOption());
     final Option<Date> start;
     if (episode.getFirst(PROPERTY_TEMPORAL) != null) {
@@ -209,8 +217,8 @@ public class StaticMetadataServiceDublinCoreImpl implements StaticMetadataServic
       }
 
       @Override
-      public Option<String> getValid() {
-        return null;
+      public Option<Date> getValid() {
+        return validDateOpt;
       }
 
       @Override

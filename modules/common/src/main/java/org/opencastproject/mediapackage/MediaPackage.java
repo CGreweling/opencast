@@ -38,9 +38,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlJavaTypeAdapter(MediaPackageImpl.Adapter.class)
 public interface MediaPackage extends Cloneable {
 
-  String getValid();
-  void setValid(String valid);
-
   /**
    * Returns the media package identifier.
    *

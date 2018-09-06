@@ -37,7 +37,7 @@ public class MediapackageMetadataImpl implements MediaPackageMetadata {
   protected String language;
   protected String license;
   protected Date date;
-  protected String valid;
+  protected Date valid;
 
   /**
    * {@inheritDoc}
@@ -200,9 +200,9 @@ public class MediapackageMetadataImpl implements MediaPackageMetadata {
    * @param validDate
    *        the expiryDate
    */
-  public void setValid(String validDate) { this.valid = validDate; }
+  public void setValid(Date validDate) { this.valid = validDate; }
 
-  public String getValid() {
+  public Date getValid() {
     return valid;
   }
 }

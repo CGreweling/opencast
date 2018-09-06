@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -365,7 +366,7 @@ public class Theme implements IndexObject {
       createJAXBContext();
     }
 
-    BufferedReader streamReader = new BufferedReader(new InputStreamReader(json, "UTF-8"));
+    BufferedReader streamReader = new BufferedReader(new InputStreamReader(json, StandardCharsets.UTF_8));
     StringBuilder jsonStringBuilder = new StringBuilder();
     String inputStr;
     while ((inputStr = streamReader.readLine()) != null)
@@ -420,11 +421,11 @@ public class Theme implements IndexObject {
         }
 
         @Override
-        public void setPrefix(String pfx, String uri) throws XMLStreamException {
+        public void setPrefix(String pfx, String uri) {
         }
 
         @Override
-        public void setDefaultNamespace(String uri) throws XMLStreamException {
+        public void setDefaultNamespace(String uri) {
         }
       };
 

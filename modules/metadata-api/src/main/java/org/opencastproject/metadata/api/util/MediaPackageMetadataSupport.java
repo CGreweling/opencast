@@ -63,10 +63,6 @@ public final class MediaPackageMetadataSupport {
       mp.setDate(metadata.getDate());
     }
 
-    if (metadata.getValid() != null) {
-      mp.setValid(metadata.getValid());
-    }
-
     // Episode subjects
     if (metadata.getSubjects().length > 0) {
       if (mp.getSubjects() != null) {

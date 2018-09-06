@@ -110,11 +110,6 @@ public class CommonEventCatalogUIAdapter extends ConfigurableEventDCCatalogUIAda
       mediaPackage.setTitle(title.getValue().get().toString());
     }
 
-    MetadataField<?> valid = abstractMetadata.getOutputFields().get(DublinCore.PROPERTY_VALID.getLocalName());
-    if (valid != null && valid.isUpdated()) {
-      mediaPackage.setValid(valid.getValue().get().toString());
-    }
-
     return storeFields;
   }
 

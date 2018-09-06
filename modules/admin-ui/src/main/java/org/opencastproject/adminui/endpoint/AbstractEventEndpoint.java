@@ -2018,9 +2018,9 @@ public abstract class AbstractEventEndpoint {
         collection.removeField(collection.getOutputFields().get("startTime"));
       if (collection.getOutputFields().containsKey("location"))
         collection.removeField(collection.getOutputFields().get("location"));
-      metadataList.add(getIndexService().getCommonEventCatalogUIAdapter(), collection);
       if (collection.getOutputFields().containsKey(DublinCore.PROPERTY_VALID.getLocalName()))
         collection.removeField(collection.getOutputFields().get(DublinCore.PROPERTY_VALID.getLocalName()));
+      metadataList.add(getIndexService().getCommonEventCatalogUIAdapter(), collection);
     }
     return okJson(metadataList.toJSON());
   }
