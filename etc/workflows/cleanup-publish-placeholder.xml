@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <definition xmlns="http://workflow.opencastproject.org">
 
-    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-    <!-- This Workflow requires adjustment in the                          -->
-    <!-- encoding/faildRecroding.properties encoding profile               -->
-    <!--                                                                   -->
-    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-
-  <id>failedrecording</id>
-  <title>Publish failed placeholder</title>
+  <id>placeholdervideo</id>
+  <title>Cleanup and publish placeholder video</title>
     <tags>
+      <tag>archive</tag>
+      <tag>editor</tag>
     </tags>
   <description>
     Publish a placeholder video for corrupt videos.
-    Delete and cleanup old snapshots, but keep the metadata.
+    Delete and cleanup corrupt videos and old snapshots, but keep the metadata.
   </description>
   <configuration_panel/>
 
@@ -30,6 +26,16 @@
       </configurations>
     </operation>
 
+    <!-- Retract from publication channels-->
+    <operation
+      id="include"
+      description="Retract from publication channels">
+      <configurations>
+        <configuration key="workflow-id">retract</configuration>
+      </configurations>
+    </operation>
+
+
     <!-- Untag elements for deletion -->
     <operation
       id="tag"
@@ -43,17 +49,17 @@
       </configurations>
     </operation>
 
-    <!-- Copy placeholder -failed- Video for publication -->
+    <!-- Copy placeholder Video for publication -->
     <operation
       id="compose"
       fail-on-error="true"
       exception-handler-workflow="error"
-      description="copy failed Video">
+      description="create placeholder Video">
       <configurations>
         <configuration key="source-flavor">presenter/source</configuration>
         <configuration key="target-flavor">presenter/delivery</configuration>
         <configuration key="target-tags">+failed,+engage-download</configuration>
-        <configuration key="encoding-profile">failed.http</configuration>
+        <configuration key="encoding-profile">placeholder</configuration>
       </configurations>
     </operation>
 
