@@ -1324,6 +1324,10 @@ public class IngestServiceImpl extends AbstractJobProducer implements IngestServ
   }
 
   private void mergeMediaPackageElements(MediaPackage mp, MediaPackage scheduledMp) {
+    for (MediaPackageElement element: mp.getElementsByFlavor(MediaPackageElementFlavor.flavor("dublincore", "episode"))) {
+      mp.remove(element);
+    }
+
     for (MediaPackageElement element : scheduledMp.getElements()) {
       // Asset manager media package may have a publication element (for live) if retract live has not run yet
       if (element.getFlavor() != null

@@ -326,7 +326,7 @@ public class IngestServiceImplTest {
     mediaPackage = service.addAttachment(urlAttachment, MediaPackageElements.MEDIAPACKAGE_COVER_FLAVOR, mediaPackage);
     WorkflowInstance instance = service.ingest(mediaPackage);
     Assert.assertEquals(1, mediaPackage.getTracks().length);
-    Assert.assertEquals(1, mediaPackage.getCatalogs().length);
+    Assert.assertEquals(0, mediaPackage.getCatalogs().length);
     Assert.assertEquals(1, mediaPackage.getAttachments().length);
     Assert.assertEquals(workflowInstanceID, instance.getId());
   }
@@ -453,7 +453,7 @@ public class IngestServiceImplTest {
     Assert.assertEquals(4, mergedMediaPackage.getTracks().length);
     Track track = mergedMediaPackage.getTrack("track-1");
     Assert.assertEquals("/vonlya1.mov", track.getURI().toString());
-    Assert.assertEquals(3, mergedMediaPackage.getCatalogs().length);
+    Assert.assertEquals(2, mergedMediaPackage.getCatalogs().length);
     Assert.assertEquals(1, mergedMediaPackage.getAttachments().length);
     Attachment attachment = mergedMediaPackage.getAttachment("cover");
     Assert.assertEquals("attachments/cover.png", attachment.getURI().toString());
