@@ -179,7 +179,6 @@ define(["require", "jquery", "backbone", "engage/core"], function(require, $, Ba
             initTranslate(Engage.model.get("language"));
             Engage.model.set("infoMe", new InfoMeModel());
             Engage.model.set("mediaPackage", new MediaPackageModel());
-            Engage.model.set("views", new ViewsModel());
             Engage.model.set("footprints", new FootprintCollection());
         }
     }
@@ -249,16 +248,6 @@ define(["require", "jquery", "backbone", "engage/core"], function(require, $, Ba
     require([relative_plugin_path + "models/mediaPackage"], function(model) {
         Engage.log("MhConnection: MediaPackageModel loaded");
         MediaPackageModel = model;
-        initCount -= 1;
-        if (initCount <= 0) {
-            initPlugin();
-        }
-    });
-
-    // load views model
-    require([relative_plugin_path + "models/views"], function(model) {
-        Engage.log("MhConnection: ViewsModel loaded");
-        ViewsModel = model;
         initCount -= 1;
         if (initCount <= 0) {
             initPlugin();
