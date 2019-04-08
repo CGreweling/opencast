@@ -254,6 +254,9 @@ public class IngestServiceImpl extends AbstractJobProducer implements IngestServ
   /** Option to overwrite series on ingest */
   protected boolean isOverwriteSeries = defaultIsOverWriteSeries;
 
+  private boolean skipCatalogs = true;
+  private boolean skipAttachments = true;
+
   /**
    * Creates a new ingest service instance.
    */
