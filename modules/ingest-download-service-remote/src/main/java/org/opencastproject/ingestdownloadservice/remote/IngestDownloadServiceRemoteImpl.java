@@ -37,11 +37,12 @@ import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Remote implementation of the execute service
+ * Remote implementation of the ingest download service
  */
 public class IngestDownloadServiceRemoteImpl extends RemoteBase implements IngestDownloadService {
 
@@ -50,7 +51,7 @@ public class IngestDownloadServiceRemoteImpl extends RemoteBase implements Inges
 
 
   /**
-   * Constructs a new execute service proxy
+   * Constructs a new ingest download service remote
    */
   public IngestDownloadServiceRemoteImpl() {
     super(JOB_TYPE);
@@ -58,53 +59,49 @@ public class IngestDownloadServiceRemoteImpl extends RemoteBase implements Inges
 
   /**
    *
-    * @param mediaPackage
-   * @param sourceFalvors
+   * @param mediaPackage
+   *        The media package to download elements from
+   * @param sourceFlavors
+   *        Flavors identifying elements to download
    * @param sourceTags
+   *        Tags identifying elements to download
    * @param deleteExternal
+   *        If the service should try to delete external elements after downloading
    * @param tagsAndFlavor
-   * @return
-   * @throws ServiceRegistryException
+   *        If elements are selected based on a union or an interjection of the sets selected by tags and flavors
+   * @return The launched job
    */
-
   @Override
-  public Job ingestDownload(MediaPackage mediaPackage, String sourceFalvors, String sourceTags, boolean deleteExternal,
+  public Job ingestDownload(MediaPackage mediaPackage, String sourceFlavors, String sourceTags, boolean deleteExternal,
           boolean tagsAndFlavor) throws ServiceRegistryException {
-      HttpPost post = null;
-      HttpResponse response = null;
+    HttpResponse response = null;
 
-      try {
-        String mediapackageStr = MediaPackageParser.getAsXml(mediaPackage);
-        List<NameValuePair> formStringParams = new ArrayList<NameValuePair>();
-        formStringParams.add(new BasicNameValuePair("mediapackage", mediapackageStr));
-        formStringParams.add(new BasicNameValuePair("sourceFlavors", sourceFalvors));
-        formStringParams.add(new BasicNameValuePair("sourceTags", sourceTags));
-        formStringParams.add(new BasicNameValuePair("deleteExternal", Boolean.toString(deleteExternal)));
-        formStringParams.add(new BasicNameValuePair("tagsAndFlavor", Boolean.toString(tagsAndFlavor)));
+    try {
+      final String mediaPackageStr = MediaPackageParser.getAsXml(mediaPackage);
+      List<NameValuePair> formStringParams = new ArrayList<>();
+      formStringParams.add(new BasicNameValuePair("mediapackage", mediaPackageStr));
+      formStringParams.add(new BasicNameValuePair("sourceFlavors", sourceFlavors));
+      formStringParams.add(new BasicNameValuePair("sourceTags", sourceTags));
+      formStringParams.add(new BasicNameValuePair("deleteExternal", Boolean.toString(deleteExternal)));
+      formStringParams.add(new BasicNameValuePair("tagsAndFlavor", Boolean.toString(tagsAndFlavor)));
 
-        logger.info("Downloading Source form mediapackge: {} to workspace", mediaPackage.getIdentifier());
+      logger.info("Downloading Source form mediapackge: {} to workspace", mediaPackage.getIdentifier());
 
-        post = new HttpPost("/ingestdownload");
-        post.setEntity(new UrlEncodedFormEntity(formStringParams, "UTF-8"));
-        response = getResponse(post);
+      final HttpPost post = new HttpPost("/ingestdownload");
+      post.setEntity(new UrlEncodedFormEntity(formStringParams, "UTF-8"));
+      response = getResponse(post);
 
-        if (response != null) {
-          Job job = JobParser.parseJob(response.getEntity().getContent());
-          logger.info("Starting to download into workspace on remote IngestDownload {}", mediaPackage.getIdentifier().compact());
-                return job;
-        } else {
-          logger.error("Failed to start remote IngestDownload {}", mediaPackage.getIdentifier());
-
-        }
-        }
-        catch (Exception e) {
-          logger.error("Failed to start remote IngestDownload {}  \n{}", mediaPackage.getIdentifier(),e);
-        }
-       finally {
-        closeConnection(response);
+      if (response != null) {
+        Job job = JobParser.parseJob(response.getEntity().getContent());
+        logger.info("Starting to download into workspace on remote IngestDownload {}", mediaPackage.getIdentifier().compact());
+        return job;
       }
-      return null;
-
+      throw new ServiceRegistryException("Failed to start remote IngestDownload " + mediaPackage.getIdentifier());
+    } catch (IOException e) {
+      throw new ServiceRegistryException("Failed to start remote IngestDownload " + mediaPackage.getIdentifier(), e);
+    } finally {
+      closeConnection(response);
+    }
   }
 }
 

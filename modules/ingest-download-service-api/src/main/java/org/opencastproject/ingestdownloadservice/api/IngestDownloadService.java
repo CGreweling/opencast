@@ -34,13 +34,20 @@ public interface IngestDownloadService {
   /**
    *
    * @param mediaPackage
-   * @param sourceFalvors
+   *        The media package to download elements from
+   * @param sourceFlavors
+   *        Flavors identifying elements to download
    * @param sourceTags
+   *        Tags identifying elements to download
    * @param deleteExternal
+   *        If the service should try to delete external elements after downloading
    * @param tagsAndFlavor
-   * @return
+   *        If elements are selected based on a union or an interjection of the sets selected by tags and flavors
+   * @return The launched job
    * @throws ServiceRegistryException
+   *        If starting the job failed
    */
-  Job ingestDownload(MediaPackage mediaPackage, String sourceFalvors, String sourceTags, boolean deleteExternal, boolean tagsAndFlavor)
+  Job ingestDownload(MediaPackage mediaPackage, String sourceFlavors, String sourceTags, boolean deleteExternal,
+          boolean tagsAndFlavor)
           throws ServiceRegistryException;
 }

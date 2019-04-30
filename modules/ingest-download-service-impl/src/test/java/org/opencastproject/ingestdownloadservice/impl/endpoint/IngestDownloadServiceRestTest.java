@@ -23,6 +23,14 @@ package org.opencastproject.ingestdownloadservice.impl.endpoint;
 
 
 
+import org.opencastproject.ingestdownloadservice.api.IngestDownloadService;
+import org.opencastproject.job.api.JobImpl;
+import org.opencastproject.mediapackage.MediaPackage;
+import org.opencastproject.mediapackage.MediaPackageBuilderFactory;
+import org.opencastproject.mediapackage.MediaPackageParser;
+import org.opencastproject.serviceregistry.api.ServiceRegistryException;
+
+import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -32,36 +40,28 @@ import org.junit.Test;
  */
 public class IngestDownloadServiceRestTest {
 
-  private IngestDownloadServiceEndpoint rest;
+  private IngestDownloadServiceEndpoint endpoint;
+  private IngestDownloadService service;
 
   /**
    * Setup for the Hello World Rest Service
    */
   @Before
-  public void setUp() {
-    //IngestDownloadService service = new IngestDownloadServiceImpl();
-    //rest = new IngestDownloadServiceEndpoint();
-    //rest.setHelloWorldService(service);
+  public void setUp() throws ServiceRegistryException {
+    endpoint = new IngestDownloadServiceEndpoint();
+    JobImpl job = new JobImpl();
+    service = EasyMock.createMock(IngestDownloadService.class);
+    EasyMock.expect(service.ingestDownload(EasyMock.anyObject(), EasyMock.eq("*/*"), EasyMock.eq(""),
+            EasyMock.eq(false), EasyMock.eq(false))).andReturn(job).once();
+    EasyMock.replay(service);
+    endpoint.setIngestDownloadService(service);
   }
 
   @Test
-  public void testHelloWorld() throws Exception {
-   // Response response = rest.helloWorld();
-    //Assert.assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-    //Assert.assertEquals("Hello World", response.getEntity());
+  public void testEndpoint() throws Exception {
+    MediaPackage mediaPackage = MediaPackageBuilderFactory.newInstance().newMediaPackageBuilder().createNew();
+    String mpStr = MediaPackageParser.getAsXml(mediaPackage);
+    endpoint.ingestdownload(mpStr, "", "", "", "");
   }
 
-  @Test
-  public void testHelloNameEmpty() throws Exception {
-    //Response response = rest.helloName("");
-    //Assert.assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-    //Assert.assertEquals("Hello!", response.getEntity());
-  }
-
-  @Test
-  public void testHelloName() throws Exception {
-   // Response response = rest.helloName("Peter");
-    //Assert.assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-    //Assert.assertEquals("Hello Peter!", response.getEntity());
-  }
 }

@@ -29,6 +29,7 @@ import org.opencastproject.mediapackage.MediaPackage;
 import org.opencastproject.mediapackage.MediaPackageParser;
 import org.opencastproject.rest.AbstractJobProducerEndpoint;
 import org.opencastproject.serviceregistry.api.ServiceRegistry;
+import org.opencastproject.serviceregistry.api.ServiceRegistryException;
 import org.opencastproject.util.doc.rest.RestParameter;
 import org.opencastproject.util.doc.rest.RestQuery;
 import org.opencastproject.util.doc.rest.RestResponse;
@@ -50,23 +51,15 @@ import javax.ws.rs.core.Response;
  */
 @Path("/")
 @RestService(name = "IngestDownloadServiceEndpoint",
-    title = "Ingest download rest endpoint",
-    abstractText = "This is a tutorial service.",
-    notes = {"All paths above are relative to the REST endpoint base (something like http://your.server/files)",
-        "If the service is down or not working it will return a status 503, this means the the underlying service is "
-                + "not working and is either restarting or has failed",
-        "A status code 500 means a general failure has occurred which is not recoverable and was not anticipated."
-                + "In other words, there is a bug! You should file an error report with your server logs from the time"
-                + "when the error occurred: <a href=\"https://opencast.jira.com\">Opencast Issue Tracker</a>" })
+    title = "Ingest download REST endpoint",
+    abstractText = "The REST endpoint for the ingest download service.",
+    notes = {})
 public class IngestDownloadServiceEndpoint extends AbstractJobProducerEndpoint {
   /** The logger */
   private static final Logger logger = LoggerFactory.getLogger(IngestDownloadServiceEndpoint.class);
 
-  /** The rest docs */
-  protected String docs;
-
   /** The service */
-  protected IngestDownloadService service;
+  private IngestDownloadService service;
   private ServiceRegistry serviceRegistry;
 
   @POST
@@ -93,20 +86,19 @@ public class IngestDownloadServiceEndpoint extends AbstractJobProducerEndpoint {
           @FormParam("tagsAndFlavor") String tagsAndFlavor) throws Exception {
     logger.info("starting ingest-download Service");
     MediaPackage mediapackage = MediaPackageParser.getFromXml(mediapackageString);
-    Boolean boolTagsAndFlavor = false;
-    Boolean boolDeleteExternal = false;
+    boolean boolTagsAndFlavor = false;
+    boolean boolDeleteExternal = false;
     //set Defaults
     if (sourceFlavors.isEmpty()) { sourceFlavors = "*/*"; }
     if (!tagsAndFlavor.isEmpty()) { boolTagsAndFlavor = Boolean.parseBoolean(tagsAndFlavor); }
     if (!deleteExternal.isEmpty()) { boolDeleteExternal = Boolean.parseBoolean(deleteExternal); }
-    Job retJob = null;
 
     try {
-      retJob = service.ingestDownload(mediapackage ,sourceFlavors,sourceTags,boolDeleteExternal,boolTagsAndFlavor);
-      return Response.ok().entity(new JaxbJob(retJob)
-            ).build();
-    } catch (Exception e) {
-      logger.warn("Unable to start IngestDownload: " + e.getMessage());
+      final Job retJob = service.ingestDownload(mediapackage ,sourceFlavors,sourceTags,boolDeleteExternal,
+              boolTagsAndFlavor);
+      return Response.ok().entity(new JaxbJob(retJob)).build();
+    } catch (ServiceRegistryException e) {
+      logger.warn("Unable to start IngestDownload: ", e);
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     }
   }

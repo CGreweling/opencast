@@ -27,7 +27,6 @@ import org.opencastproject.job.api.JobContext;
 import org.opencastproject.mediapackage.MediaPackage;
 import org.opencastproject.mediapackage.MediaPackageException;
 import org.opencastproject.mediapackage.MediaPackageParser;
-import org.opencastproject.security.api.TrustedHttpClient;
 import org.opencastproject.serviceregistry.api.ServiceRegistryException;
 import org.opencastproject.workflow.api.AbstractWorkflowOperationHandler;
 import org.opencastproject.workflow.api.WorkflowInstance;
@@ -35,10 +34,8 @@ import org.opencastproject.workflow.api.WorkflowOperationException;
 import org.opencastproject.workflow.api.WorkflowOperationInstance;
 import org.opencastproject.workflow.api.WorkflowOperationResult;
 import org.opencastproject.workflow.api.WorkflowOperationResult.Action;
-import org.opencastproject.workspace.api.Workspace;
 
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,38 +60,10 @@ public class IngestDownloadWorkflowOperationHandler extends AbstractWorkflowOper
   /** config key used to specify, whether both, a tag and a flavor, must match or if one is sufficient */
   public static final String TAGS_AND_FLAVORS = "tags-and-flavors";
 
-  /**
-   * The workspace to use in retrieving and storing files.
-   */
-  protected Workspace workspace;
-
-  /** The http client to use when connecting to remote servers */
-  protected TrustedHttpClient client = null;
-  protected IngestDownloadService ingestDownloadService;
+  private IngestDownloadService ingestDownloadService;
 
   /** The default no-arg constructor builds the configuration options set */
   public IngestDownloadWorkflowOperationHandler() {
-  }
-
-  /**
-   * Sets the workspace to use.
-   *
-   * @param workspace
-   *          the workspace
-   */
-  public void setWorkspace(Workspace workspace) {
-    this.workspace = workspace;
-  }
-
-
-  /**
-   * Sets the trusted http client
-   *
-   * @param client
-   *          the trusted http client
-   */
-  public void setTrustedHttpClient(TrustedHttpClient client) {
-    this.client = client;
   }
 
   /**
@@ -117,26 +86,20 @@ public class IngestDownloadWorkflowOperationHandler extends AbstractWorkflowOper
     boolean tagsAndFlavor = BooleanUtils.toBoolean(currentOperation.getConfiguration(TAGS_AND_FLAVORS));
     String sourceFlavors = getConfig(workflowInstance, SOURCE_FLAVORS, "*/*");
     String sourceTags = getConfig(workflowInstance, SOURCE_TAGS, "");
-    WorkflowOperationResult result = null;
+
     try {
-      Job job = ingestDownloadService
-              .ingestDownload(workflowInstance.getMediaPackage(), sourceFlavors, sourceTags, deleteExternal, tagsAndFlavor);
+      Job job = ingestDownloadService.ingestDownload(workflowInstance.getMediaPackage(), sourceFlavors, sourceTags,
+                                                     deleteExternal, tagsAndFlavor);
 
       // Wait for all jobs to be finished
       if (!waitForStatus(job).isSuccess())
         throw new WorkflowOperationException("Execute operation failed");
 
-      if (StringUtils.isNotBlank(job.getPayload())) {
-        MediaPackage mediaPackage = MediaPackageParser.getFromXml(job.getPayload());
-        result = createResult(mediaPackage, Action.CONTINUE, job.getQueueTime());
-      }
+      final MediaPackage mediaPackage = MediaPackageParser.getFromXml(job.getPayload());
+      return createResult(mediaPackage, Action.CONTINUE, job.getQueueTime());
 
-    } catch (MediaPackageException e) {
+    } catch (MediaPackageException | ServiceRegistryException e) {
       throw new WorkflowOperationException("Some result element couldn't be serialized", e);
-    } catch (ServiceRegistryException e) {
-      e.printStackTrace();
-
     }
-    return result;
   }
 }
