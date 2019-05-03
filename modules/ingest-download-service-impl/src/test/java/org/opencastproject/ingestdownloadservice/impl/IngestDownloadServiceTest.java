@@ -54,7 +54,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Test class for Hello World Tutorial
+ * Test class for IngestDonwloadService
  */
 public class IngestDownloadServiceTest {
 
@@ -66,7 +66,7 @@ public class IngestDownloadServiceTest {
   public TemporaryFolder testFolder = new TemporaryFolder();
 
   /**
-   * Setup for the Hello World Service
+   * Setup for the Service
    */
   @Before
   public void setUp()
@@ -113,9 +113,7 @@ public class IngestDownloadServiceTest {
   }
 
   @Test
-  public void testHelloName() throws Exception {
-    //final String mpStr = IOUtils.resourceToString("/mp.xml", StandardCharsets.UTF_8);
-    //MediaPackage mediaPackage = MediaPackageParser.getFromXml(mpStr);
+  public void testDownloadToWorkspace() throws Exception {
     MediaPackage mediaPackage = MediaPackageBuilderFactory.newInstance().newMediaPackageBuilder().createNew();
     TrackImpl track = new TrackImpl();
     track.setURI(new URI("http://localhost:9/a.mp4"));
