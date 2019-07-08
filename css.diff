@@ -1,0 +1,161 @@
+diff --git a/modules/admin-ui/src/main/webapp/scripts/modules/events/controllers/eventsController.js b/modules/admin-ui/src/main/webapp/scripts/modules/events/controllers/eventsController.js
+index 78351470e9..a609ed76a3 100644
+--- a/modules/admin-ui/src/main/webapp/scripts/modules/events/controllers/eventsController.js
++++ b/modules/admin-ui/src/main/webapp/scripts/modules/events/controllers/eventsController.js
+@@ -124,9 +124,6 @@ angular.module('adminNg.controllers')
+               ResourceModal.show('retract-published-event-modal',row.id);
+           });
+         };
+-        row.downloadAssets = function () {
+-        alert("hello");
+-        };
+       }
+     });
+ 
+diff --git a/modules/admin-ui/src/main/webapp/scripts/modules/events/partials/eventActionsCell.html b/modules/admin-ui/src/main/webapp/scripts/modules/events/partials/eventActionsCell.html
+index 5a4f6d824d..bc08927776 100644
+--- a/modules/admin-ui/src/main/webapp/scripts/modules/events/partials/eventActionsCell.html
++++ b/modules/admin-ui/src/main/webapp/scripts/modules/events/partials/eventActionsCell.html
+@@ -54,20 +54,11 @@
+    class="fa fa-warning">
+ </a>
+ 
+-<a
+-  class = "remove"
+-  ng-click="row.downloadAssets()"
+-  with-role="ROLE_UI_EVENTS_DETAILS_VIEW">
+-  </a>
+-
+-<select chosen  disable-search="false" placeholder-text-single="Choose a beer" ng-change="row.downloadAssets()">
+-  <option value="AK">Alaska</option>
+-  <option value="AZ">Arizona</option>
+-  <option value="AR">Arkansas</option>
+-  <option value="CA">California Wow</option>
+-
+-</select>
++<a data-open-modal="event-details"
++   data-resource-id="{{ row.id }}"
++   class="fa fa-stack-overflow"
++   data-tab="assets"
++   title="{{ 'EVENTS.EVENTS.TABLE.TOOLTIP.MEDIA' | translate }}"
++   with-role="ROLE_UI_EVENTS_ASSETS_VIEW">
+ </a>
+ 
+-
+-
+diff --git a/modules/admin-ui/src/main/webapp/scripts/shared/partials/modals/event-details.html b/modules/admin-ui/src/main/webapp/scripts/shared/partials/modals/event-details.html
+index 6be760d88c..93c5046072 100644
+--- a/modules/admin-ui/src/main/webapp/scripts/shared/partials/modals/event-details.html
++++ b/modules/admin-ui/src/main/webapp/scripts/shared/partials/modals/event-details.html
+@@ -1002,7 +1002,7 @@
+               </thead>
+               <tbody>
+                 <tr ng-repeat="item in subNavData">
+-                  <td>{{ item.id }}</td>
++                  <td><a ng-href="{{item.url}}">{{item.id}}</a></td>
+                   <td>{{ item.type }}</td>
+                   <td>{{ item.mimetype }}</td>
+                   <td>{{ item.tags|joinBy:', ' }}</td>
+diff --git a/modules/admin-ui/src/main/webapp/styles/base/_layout.scss b/modules/admin-ui/src/main/webapp/styles/base/_layout.scss
+index 03399e4c90..3e8c39a292 100644
+--- a/modules/admin-ui/src/main/webapp/styles/base/_layout.scss
++++ b/modules/admin-ui/src/main/webapp/styles/base/_layout.scss
+@@ -42,7 +42,7 @@ body {
+ // Resets
+ 
+ a {
+-    color: $color-link;
++    color: #1d5888;
+     text-decoration: none;
+ 
+     &:hover {
+@@ -73,4 +73,4 @@ button {
+ 
+ .text-right {
+     text-align: right;
+-}
+\ No newline at end of file
++}
+diff --git a/modules/admin-ui/src/main/webapp/styles/components/_tables.scss b/modules/admin-ui/src/main/webapp/styles/components/_tables.scss
+index b2ee7efa87..d480a9ae23 100644
+--- a/modules/admin-ui/src/main/webapp/styles/components/_tables.scss
++++ b/modules/admin-ui/src/main/webapp/styles/components/_tables.scss
+@@ -245,6 +245,9 @@
+             &.more-series {
+                 @include build-icon(auto, auto, more-series-icon, 19px, 15px);
+             }
++            &.download {
++                @include build-icon(auto, auto, download-icon, 19px, 15px);
++            }
+ 
+             &.time {
+                 @include build-icon(auto, auto, time-icon, 17px, 17px);
+diff --git a/modules/admin-ui/src/main/webapp/styles/extensions/components/_tables.scss b/modules/admin-ui/src/main/webapp/styles/extensions/components/_tables.scss
+index 81b8b41bed..1f0d877ea5 100644
+--- a/modules/admin-ui/src/main/webapp/styles/extensions/components/_tables.scss
++++ b/modules/admin-ui/src/main/webapp/styles/extensions/components/_tables.scss
+@@ -159,6 +159,7 @@
+                 line-height: 16px;
+                 text-shadow: 0 1px 0 $white;
+                 padding: 8px 15px;
++                color: 378dd4;
+             }
+ 
+             &:first-child a {
+diff --git a/modules/admin-ui/src/main/webapp/styles/main.scss b/modules/admin-ui/src/main/webapp/styles/main.scss
+index eeabd1f1e4..a69afee6fc 100644
+--- a/modules/admin-ui/src/main/webapp/styles/main.scss
++++ b/modules/admin-ui/src/main/webapp/styles/main.scss
+@@ -102,6 +102,7 @@ $disable-warnings: true !default; // disables deprecation warnings
+ // All anchors should behave clickable (even without href attributes)
+ a {
+   cursor: pointer;
++  color: #378dd4;
+ }
+ 
+ // Mark mockups as stubs
+@@ -496,7 +497,9 @@ table.main-tbl {
+       white-space: nowrap;
+     }
+   }
+-
++ .a {
++    color : #5555;
++  }
+   /* we don't want to let the angular animation show up*/
+   .ng-hide-add, .ng-hide-remove {
+     display: none !important;
+diff --git a/modules/admin-ui/src/main/webapp/styles/views/modals/_event-series.scss b/modules/admin-ui/src/main/webapp/styles/views/modals/_event-series.scss
+index ab0822906d..3e80d5c4ce 100644
+--- a/modules/admin-ui/src/main/webapp/styles/views/modals/_event-series.scss
++++ b/modules/admin-ui/src/main/webapp/styles/views/modals/_event-series.scss
+@@ -152,6 +152,7 @@
+ 
+                 a {
+                     float: right;
++                    color: #1d5888;
+                 }
+             }
+         }
+diff --git a/modules/admin-ui/src/main/webapp/styles/views/modals/_modal-dialog.scss b/modules/admin-ui/src/main/webapp/styles/views/modals/_modal-dialog.scss
+index 485438e439..43b052f134 100644
+--- a/modules/admin-ui/src/main/webapp/styles/views/modals/_modal-dialog.scss
++++ b/modules/admin-ui/src/main/webapp/styles/views/modals/_modal-dialog.scss
+@@ -49,7 +49,7 @@
+                 height: 39px;
+                 display: inline-block;
+                 margin: 0 10px;
+-
++                color: #1d5888;
+                 i {
+                     margin: 0 !important;
+                 }
+@@ -86,7 +86,7 @@
+                 height: 39px;
+                 display: inline-block;
+                 margin: 0 10px;
+-
++                color: #1d5888;
+                 i {
+                     margin: 0 !important;
+                 }
