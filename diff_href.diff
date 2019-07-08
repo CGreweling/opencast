@@ -1,0 +1,20 @@
+diff --git a/modules/admin-ui/src/main/webapp/styles/base/_layout.scss b/modules/admin-ui/src/main/webapp/styles/base/_layout.scss
+index 03399e4c90..3e8c39a292 100644
+--- a/modules/admin-ui/src/main/webapp/styles/base/_layout.scss
++++ b/modules/admin-ui/src/main/webapp/styles/base/_layout.scss
+@@ -42,7 +42,7 @@ body {
+ // Resets
+ 
+ a {
+-    color: $color-link;
++    color: #1d5888;
+     text-decoration: none;
+ 
+     &:hover {
+@@ -73,4 +73,4 @@ button {
+ 
+ .text-right {
+     text-align: right;
+-}
+\ No newline at end of file
++}

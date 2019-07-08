@@ -1,0 +1,67 @@
+diff --git a/modules/admin-ui/src/main/resources/public/org/opencastproject/adminui/languages/lang-de_DE.json b/modules/admin-ui/src/main/resources/public/org/opencastproject/adminui/languages/lang-de_DE.json
+index 60679725f6..cba5fd144f 100644
+--- a/modules/admin-ui/src/main/resources/public/org/opencastproject/adminui/languages/lang-de_DE.json
++++ b/modules/admin-ui/src/main/resources/public/org/opencastproject/adminui/languages/lang-de_DE.json
+@@ -479,6 +479,7 @@
+             "PUBLISHED": "Veröffentlicht",
+             "WEEKDAY": "Wochentag",
+             "TOOLTIP": {
++               "ASSETS": "Assets anzeigen",
+                "START": "Nach diesem Startdatum filtern",
+                "SERIES": "Nach dieser Serie filtern",
+                "STATUS": "Nach diesem Verarbeitungsstatus filtern",
+diff --git a/modules/admin-ui/src/main/resources/public/org/opencastproject/adminui/languages/lang-en_GB.json b/modules/admin-ui/src/main/resources/public/org/opencastproject/adminui/languages/lang-en_GB.json
+index edb43b32d9..6012263dd0 100644
+--- a/modules/admin-ui/src/main/resources/public/org/opencastproject/adminui/languages/lang-en_GB.json
++++ b/modules/admin-ui/src/main/resources/public/org/opencastproject/adminui/languages/lang-en_GB.json
+@@ -479,6 +479,7 @@
+             "PUBLISHED": "Published",
+             "WEEKDAY": "Weekday",
+             "TOOLTIP": {
++               "ASSETS" : "Open asset detials",
+                "START": "Filter for this start date",
+                "SERIES": "Filter for this series",
+                "STATUS": "Filter for this event status",
+diff --git a/modules/admin-ui/src/main/resources/public/org/opencastproject/adminui/languages/lang-en_US.json b/modules/admin-ui/src/main/resources/public/org/opencastproject/adminui/languages/lang-en_US.json
+index 1990a11167..b6feec4cc1 100644
+--- a/modules/admin-ui/src/main/resources/public/org/opencastproject/adminui/languages/lang-en_US.json
++++ b/modules/admin-ui/src/main/resources/public/org/opencastproject/adminui/languages/lang-en_US.json
+@@ -480,6 +480,7 @@
+          "PUBLISHED": "Published",
+          "WEEKDAY": "Weekday",
+          "TOOLTIP": {
++           "ASSETS" : "Open asset detials",
+            "START": "Filter for this start date",
+            "SERIES": "Filter for this series",
+            "STATUS": "Filter for this event status",
+diff --git a/modules/admin-ui/src/main/webapp/scripts/modules/events/partials/eventActionsCell.html b/modules/admin-ui/src/main/webapp/scripts/modules/events/partials/eventActionsCell.html
+index 5a33ba499d..af7ae9fbf3 100644
+--- a/modules/admin-ui/src/main/webapp/scripts/modules/events/partials/eventActionsCell.html
++++ b/modules/admin-ui/src/main/webapp/scripts/modules/events/partials/eventActionsCell.html
+@@ -53,3 +53,12 @@
+    title="{{ 'EVENTS.EVENTS.TABLE.TOOLTIP.PAUSED_WORKFLOW' | translate }}"
+    class="fa fa-warning">
+ </a>
++
++<a data-open-modal="event-details"
++   data-resource-id="{{ row.id }}"
++   class="fa fa-stack-overflow"
++   data-tab="assets"
++   title="{{ 'EVENTS.EVENTS.TABLE.TOOLTIP.ASSETS' | translate }}"
++   with-role="ROLE_UI_EVENTS_ASSETS_VIEW">
++</a>
++
+diff --git a/modules/admin-ui/src/main/webapp/scripts/shared/partials/modals/event-details.html b/modules/admin-ui/src/main/webapp/scripts/shared/partials/modals/event-details.html
+index 6be760d88c..93c5046072 100644
+--- a/modules/admin-ui/src/main/webapp/scripts/shared/partials/modals/event-details.html
++++ b/modules/admin-ui/src/main/webapp/scripts/shared/partials/modals/event-details.html
+@@ -1002,7 +1002,7 @@
+               </thead>
+               <tbody>
+                 <tr ng-repeat="item in subNavData">
+-                  <td>{{ item.id }}</td>
++                  <td><a ng-href="{{item.url}}">{{item.id}}</a></td>
+                   <td>{{ item.type }}</td>
+                   <td>{{ item.mimetype }}</td>
+                   <td>{{ item.tags|joinBy:', ' }}</td>
+
