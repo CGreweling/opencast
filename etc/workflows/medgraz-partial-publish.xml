@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definition xmlns="http://workflow.opencastproject.org">
 
-  <id>partial-publish</id>
+  <id>medgraz-partial-publish</id>
   <title>Publish the recording</title>
   <tags/>
   <description/>
@@ -9,17 +9,6 @@
   <configuration_panel/>
 
   <operations>
-
-    <operation
-        id="select-tracks"
-        exception-handler-workflow="partial-error"
-        description="Preparing presenter (camera) audio and video work versions">
-      <configurations>
-        <configuration key="source-flavor">*/prepared</configuration>
-        <configuration key="target-flavor">*/work</configuration>
-        <configuration key="target-tags">-archive</configuration>
-      </configurations>
-    </operation>
 
     <operation
         id="analyze-tracks"
@@ -36,22 +25,13 @@
     <!-- Perform cutting according to the edit decision list.              -->
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
-    <operation
-        id="clone"
-        exception-handler-workflow="partial-error">
-      <configurations>
-        <configuration key="source-flavor">smil/cutting</configuration>
-        <configuration key="target-flavor">smil/tmp</configuration>
-      </configurations>
-    </operation>
-
     <operation id="editor"
       exception-handler-workflow="partial-error"
       description="Cut the recording according to the edit decision list">
       <configurations>
         <configuration key="source-flavors">*/work</configuration>
-        <configuration key="smil-flavors">smil/tmp</configuration>
-        <configuration key="target-smil-flavor">smil/tmp</configuration>
+        <configuration key="smil-flavors">smil/cutting</configuration>
+        <configuration key="target-smil-flavor">smil/publish</configuration>
         <configuration key="target-flavor-subtype">trimmed</configuration>
         <configuration key="interactive">false</configuration>
       </configurations>
@@ -366,30 +346,6 @@
 
     <!-- Encode presenter (camera) to Engage player format -->
     <operation
-      if="${flagQuality360p}"
-      id="compose"
-      exception-handler-workflow="partial-error"
-      description="Encoding 360p video to MP4 download">
-      <configurations>
-        <configuration key="source-flavor">*/themed</configuration>
-        <configuration key="target-flavor">*/delivery</configuration>
-        <configuration key="target-tags">engage-download,engage-streaming,360p-quality</configuration>
-        <configuration key="encoding-profile">adaptive-360p.http</configuration>
-      </configurations>
-    </operation>
-    <operation
-      if="${flagQuality480p}"
-      id="compose"
-      exception-handler-workflow="partial-error"
-      description="Encoding 480p video to MP4 download">
-      <configurations>
-        <configuration key="source-flavor">*/themed</configuration>
-        <configuration key="target-flavor">*/delivery</configuration>
-        <configuration key="target-tags">engage-download,engage-streaming,480p-quality</configuration>
-        <configuration key="encoding-profile">adaptive-480p.http</configuration>
-      </configurations>
-    </operation>
-    <operation
       if="${flagQuality720p}"
       id="compose"
       exception-handler-workflow="partial-error"
@@ -411,39 +367,6 @@
         <configuration key="target-flavor">*/delivery</configuration>
         <configuration key="target-tags">engage-download,engage-streaming,1080p-quality</configuration>
         <configuration key="encoding-profile">adaptive-1080p.http</configuration>
-      </configurations>
-    </operation>
-    <operation
-      if="${flagQuality2160p}"
-      id="compose"
-      exception-handler-workflow="partial-error"
-      description="Encoding 2160p video to MP4 download">
-      <configurations>
-        <configuration key="source-flavor">*/themed</configuration>
-        <configuration key="target-flavor">*/delivery</configuration>
-        <configuration key="target-tags">engage-download,engage-streaming,2160p-quality</configuration>
-        <configuration key="encoding-profile">adaptive-2160p.http</configuration>
-      </configurations>
-    </operation>
-    <operation
-      id="composite"
-      description="Create YouTube compatible output"
-      if="${publishToYouTube}"
-      fail-on-error="true"
-      exception-handler-workflow="partial-error">
-      <configurations>
-        <configuration key="source-flavor-lower">presentation/themed</configuration>
-        <configuration key="source-flavor-upper">presenter/themed</configuration>
-        <configuration key="encoding-profile">mp4-preview.dual.http</configuration>
-        <configuration key="target-flavor">composite/delivery</configuration>
-        <configuration key="target-tags">youtube</configuration>
-        <configuration key="output-resolution">1280x800</configuration>
-        <configuration key="output-background">0x000000FF</configuration>
-        <configuration key="layout">preview</configuration>
-        <configuration key="layout-preview">
-          {"horizontalCoverage":0.5,"anchorOffset":{"referring":{"left":1.0,"top":0.0},"reference":{"left":1.0,"top":0.0},"offset":{"x":0,"y":0}}};
-          {"horizontalCoverage":0.5,"anchorOffset":{"referring":{"left":0.0,"top":0.0},"reference":{"left":0.0,"top":0.0},"offset":{"x":0,"y":0}}};
-        </configuration>
       </configurations>
     </operation>
 
@@ -514,65 +437,6 @@
         <configuration key="download-source-tags">engage-download,atom,rss,mobile</configuration>
         <configuration key="streaming-source-tags">engage-streaming</configuration>
         <configuration key="check-availability">true</configuration>
-      </configurations>
-    </operation>
-
-    <operation
-      id="publish-aws"
-      if="${publishToAws}"
-      max-attempts="2"
-      exception-handler-workflow="partial-error"
-      description="Publishing to Amazon Web Services">
-      <configurations>
-        <configuration key="download-source-flavors">dublincore/*,security/*</configuration>
-        <configuration key="download-source-tags">engage-download,atom,rss,mobile</configuration>
-        <configuration key="streaming-source-tags">engage-streaming</configuration>
-        <configuration key="strategy">merge</configuration>
-        <configuration key="check-availability">true</configuration>
-      </configurations>
-    </operation>
-
-    <operation
-      id="publish-configure"
-      if="${publishToApi}"
-      exception-handler-workflow="partial-error"
-      description="Publish to external api publication channel">
-      <configurations>
-        <configuration key="channel-id">api</configuration>
-        <configuration key="mimetype">application/json</configuration>
-        <configuration key="source-tags">engage-download,engage-streaming</configuration>
-        <configuration key="url-pattern">http://localhost:8080/api/events/${event_id}</configuration>
-        <configuration key="with-published-elements">false</configuration>
-        <configuration key="check-availability">true</configuration>
-      </configurations>
-    </operation>
-
-    <!-- Publish to OAI-PMH -->
-
-    <operation
-      id="publish-oaipmh"
-      if="${publishToOaiPmh}"
-      exception-handler-workflow="partial-error"
-      description="Publish to OAI-PMH Default Repository">
-      <configurations>
-        <configuration key="download-flavors">dublincore/*,security/*</configuration>
-        <configuration key="download-tags">engage-download,atom,rss</configuration>
-        <configuration key="streaming-tags">engage-streaming</configuration>
-        <configuration key="check-availability">true</configuration>
-        <configuration key="repository">default</configuration>
-      </configurations>
-    </operation>
-
-    <!-- Publish to YouTube -->
-
-    <operation
-      id="publish-youtube"
-      if="${publishToYouTube}"
-      max-attempts="2"
-      exception-handler-workflow="partial-error"
-      description="Publishing to YouTube">
-      <configurations>
-        <configuration key="source-tags">youtube</configuration>
       </configurations>
     </operation>
 

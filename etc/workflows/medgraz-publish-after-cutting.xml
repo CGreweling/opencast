@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <definition xmlns="http://workflow.opencastproject.org">
 
-  <id>publish-after-cutting</id>
+  <id>medgraz-publish-after-cutting</id>
   <title>Publish</title>
   <tags>
     <tag>editor</tag>
@@ -18,8 +18,6 @@
       description="Applying default configuration values">
       <configurations>
         <configuration key="publishToEngage">true</configuration>
-        <configuration key="publishToApi">true</configuration>
-        <configuration key="publishToYouTube">false</configuration>
         <configuration key="thumbnailType">0</configuration>
         <configuration key="thumbnailPosition">1</configuration>
       </configurations>
@@ -44,6 +42,24 @@
     </operation>
 
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    <!-- Prepare asset                                                     -->
+    <!--                                                                   -->
+    <!-- Prepare the recording for asset management, including creation of -->
+    <!-- previews, audio waveforms and storing of the recording data in    -->
+    <!-- the asset area for further processing.                            -->
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <!-- Prepare work versions of the source material for further processing -->
+
+    <operation
+      id="include"
+      description="Prepare the recording for further processing">
+      <configurations>
+        <configuration key="workflow-id">partial-work</configuration>
+      </configurations>
+    </operation>
+
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
     <!-- Publish                                                           -->
     <!--                                                                   -->
     <!-- Encode and publish the recording to the selected publication      -->
@@ -56,7 +72,7 @@
       id="include"
       description="Publish the recording">
       <configurations>
-        <configuration key="workflow-id">partial-publish</configuration>
+        <configuration key="workflow-id">medgraz-partial-publish</configuration>
       </configurations>
     </operation>
 
@@ -77,24 +93,22 @@
       </configurations>
     </operation>
 
-    <!-- Clean up work artifacts -->
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    <!-- Cleanup                                                           -->
+    <!--                                                                   -->
+    <!-- Remove work artifacts.                                            -->
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <!-- Clean the system from work artifacts -->
 
     <operation
-        id="cleanup"
-        fail-on-error="false"
-        description="Remove temporary processing artifacts">
+      id="include"
+      description="Remove temporary processing artifacts">
       <configurations>
-        <configuration key="delete-external">true</configuration>
-        <!-- FixMe Don't clean up ACLs until workflow service no longer looks for them in the WFR. -->
-        <configuration key="preserve-flavors">security/*</configuration>
+        <configuration key="workflow-id">partial-cleanup</configuration>
       </configurations>
     </operation>
 
   </operations>
-
-  <state-mappings>
-    <state-mapping state="running">EVENTS.EVENTS.STATE_MAPPING.PUBLISHING</state-mapping>
-    <state-mapping state="failing">EVENTS.EVENTS.STATE_MAPPING.PUBLISHING</state-mapping>
-  </state-mappings>
 
 </definition>

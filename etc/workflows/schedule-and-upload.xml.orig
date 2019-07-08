@@ -213,17 +213,17 @@
       </configurations>
     </operation>
 
-    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-    <!-- Prepare the work media                                            -->
-    <!--                                                                   -->
-    <!-- Ensure the work media is in a format that allows Opencast to do   -->
-    <!-- its work. This includes potentially rewriting the container and   -->
-    <!-- making sure that the audio track is part of each video track.     -->
-    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    <!-- Prepare work versions of the source material for further processing -->
 
     <!-- Prepare presenter track -->
 
     <operation
+<<<<<<< HEAD
+      id="include"
+      description="Prepare the recording for further processing">
+      <configurations>
+        <configuration key="workflow-id">partial-work</configuration>
+=======
         id="prepare-av"
         exception-handler-workflow="partial-error"
         description="Preparing presenter (camera) audio and video work versions">
@@ -248,6 +248,7 @@
         <configuration key="rewrite">false</configuration>
         <configuration key="target-tags">archive</configuration>
         <configuration key="audio-muxing-source-flavors">*/?,*/*</configuration>
+>>>>>>> 6197e53897... MH-13617 Re-introduce prepare-av
       </configurations>
     </operation>
 
@@ -340,24 +341,22 @@
       </configurations>
     </operation>
 
-    <!-- Clean up work artifacts -->
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    <!-- Cleanup                                                           -->
+    <!--                                                                   -->
+    <!-- Remove work artifacts.                                            -->
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <!-- Clean the system from work artifacts -->
 
     <operation
-        id="cleanup"
-        fail-on-error="false"
-        description="Remove temporary processing artifacts">
+      id="include"
+      description="Remove temporary processing artifacts">
       <configurations>
-        <configuration key="delete-external">true</configuration>
-        <!-- FixMe Don't clean up ACLs until workflow service no longer looks for them in the WFR. -->
-        <configuration key="preserve-flavors">security/*</configuration>
+        <configuration key="workflow-id">partial-cleanup</configuration>
       </configurations>
     </operation>
 
   </operations>
-
-  <state-mappings>
-    <state-mapping state="running">EVENTS.EVENTS.STATE_MAPPING.IMPORTING</state-mapping>
-    <state-mapping state="failing">EVENTS.EVENTS.STATE_MAPPING.IMPORTING</state-mapping>
-  </state-mappings>
 
 </definition>
