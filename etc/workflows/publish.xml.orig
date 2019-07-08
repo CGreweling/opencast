@@ -150,6 +150,27 @@
     </operation>
 
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+<<<<<<< HEAD
+    <!-- Prepare asset                                                     -->
+    <!--                                                                   -->
+    <!-- Prepare the recording for asset management, including creation of -->
+    <!-- previews, audio waveforms and storing of the recording data in    -->
+    <!-- the asset area for further processing.                            -->
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <!-- Prepare work versions of the source material for further processing -->
+
+    <operation
+      id="include"
+      description="Prepare the recording for further processing">
+      <configurations>
+        <configuration key="workflow-id">partial-work</configuration>
+      </configurations>
+    </operation>
+
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+=======
+>>>>>>> 6197e53897... MH-13617 Re-introduce prepare-av
     <!-- Publish                                                           -->
     <!--                                                                   -->
     <!-- Encode and publish the recording to the selected publication      -->
@@ -183,24 +204,22 @@
       </configurations>
     </operation>
 
-    <!-- Clean up work artifacts -->
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    <!-- Cleanup                                                           -->
+    <!--                                                                   -->
+    <!-- Remove work artifacts.                                            -->
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <!-- Clean the system from work artifacts -->
 
     <operation
-        id="cleanup"
-        fail-on-error="false"
-        description="Remove temporary processing artifacts">
+      id="include"
+      description="Remove temporary processing artifacts">
       <configurations>
-        <configuration key="delete-external">true</configuration>
-        <!-- FixMe Don't clean up ACLs until workflow service no longer looks for them in the WFR. -->
-        <configuration key="preserve-flavors">security/*</configuration>
+        <configuration key="workflow-id">partial-cleanup</configuration>
       </configurations>
     </operation>
 
   </operations>
-
-  <state-mappings>
-    <state-mapping state="running">EVENTS.EVENTS.STATE_MAPPING.PUBLISHING</state-mapping>
-    <state-mapping state="failing">EVENTS.EVENTS.STATE_MAPPING.PUBLISHING</state-mapping>
-  </state-mappings>
 
 </definition>
