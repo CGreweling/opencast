@@ -143,7 +143,7 @@ public class NcastfilesWorkflowOperationHandler extends AbstractWorkflowOperatio
 
     final List<String> stderrFilter = java.util.Arrays.asList(
             "Page",
-            "something went wring with the Task",
+            "something went wrong with the Task",
             "Try Again");
 
     try {
