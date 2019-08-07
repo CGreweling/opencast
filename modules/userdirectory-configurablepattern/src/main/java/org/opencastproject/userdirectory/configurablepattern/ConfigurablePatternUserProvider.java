@@ -27,7 +27,10 @@ import org.opencastproject.security.api.JaxbUser;
 import org.opencastproject.security.api.SecurityService;
 import org.opencastproject.security.api.User;
 import org.opencastproject.security.api.UserProvider;
+import org.opencastproject.util.ConfigurationException;
 
+import org.apache.commons.lang3.StringUtils;
+import org.osgi.service.cm.ManagedService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -35,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -50,17 +54,30 @@ import java.util.regex.Pattern;
     immediate = true,
     service = UserProvider.class
 )
-public class ConfigurablePatternUserProvider implements UserProvider {
+public class ConfigurablePatternUserProvider implements UserProvider, ManagedService {
 
   private static final Logger logger = LoggerFactory.getLogger(ConfigurablePatternUserProvider.class);
 
-  // should be configurable
-  private Pattern pattern = Pattern.compile("^lti:unios:.*$");
+  private static final String MATCH_USER_PATTERN = "match_user_pattern";
+
+  private Pattern pattern = null;
 
   private SecurityService securityService;
 
+
+
   private void activate() {
     logger.info("{} loaded", ConfigurablePatternUserProvider.class.getSimpleName());
+  }
+
+  @Override
+  public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
+    logger.info("Updating ConfigurableUserProvider");
+
+    String userPattern = StringUtils.trimToNull((String) properties.get(MATCH_USER_PATTERN));
+    if (userPattern != null) {
+      pattern = Pattern.compile(userPattern);
+    }
   }
 
   @Reference
@@ -80,13 +97,13 @@ public class ConfigurablePatternUserProvider implements UserProvider {
 
   @Override
   public User loadUser(final String userName) {
-    if (!pattern.matcher(userName).matches()) {
+    if (!pattern.matcher(userName).matches() | pattern == null) {
       return null;
     }
     final JaxbOrganization organization = JaxbOrganization.fromOrganization(securityService.getOrganization());
     final Set<JaxbRole> roles = new HashSet<>();
     roles.add(new JaxbRole(organization.getAnonymousRole(), organization));
-    return new JaxbUser(userName, getName(), organization, roles);
+    return new JaxbUser(userName, getName(),pattern.toString(),"nomail@mail.com","LTI", organization, roles);
   }
 
   @Override
