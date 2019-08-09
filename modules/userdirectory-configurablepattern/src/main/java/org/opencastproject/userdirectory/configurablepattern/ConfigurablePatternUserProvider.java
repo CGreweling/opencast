@@ -27,10 +27,10 @@ import org.opencastproject.security.api.JaxbUser;
 import org.opencastproject.security.api.SecurityService;
 import org.opencastproject.security.api.User;
 import org.opencastproject.security.api.UserProvider;
-import org.opencastproject.util.ConfigurationException;
 
 import org.apache.commons.lang3.StringUtils;
-import org.osgi.service.cm.ManagedService;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -54,7 +53,7 @@ import java.util.regex.Pattern;
     immediate = true,
     service = UserProvider.class
 )
-public class ConfigurablePatternUserProvider implements UserProvider, ManagedService {
+public class ConfigurablePatternUserProvider implements UserProvider {
 
   private static final Logger logger = LoggerFactory.getLogger(ConfigurablePatternUserProvider.class);
 
@@ -64,19 +63,16 @@ public class ConfigurablePatternUserProvider implements UserProvider, ManagedSer
 
   private SecurityService securityService;
 
-
-
-  private void activate() {
+  @Activate
+  private void activate(ComponentContext cc) {
     logger.info("{} loaded", ConfigurablePatternUserProvider.class.getSimpleName());
-  }
 
-  @Override
-  public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
-    logger.info("Updating ConfigurableUserProvider");
-
-    String userPattern = StringUtils.trimToNull((String) properties.get(MATCH_USER_PATTERN));
-    if (userPattern != null) {
-      pattern = Pattern.compile(userPattern);
+    if (cc != null) {
+      String userPattern = StringUtils.trimToNull((String) cc.getProperties().get(MATCH_USER_PATTERN));
+      if (userPattern != null) {
+        logger.debug("Updating ConfigurableUserProvider");
+        pattern = Pattern.compile(userPattern);
+      }
     }
   }
 
