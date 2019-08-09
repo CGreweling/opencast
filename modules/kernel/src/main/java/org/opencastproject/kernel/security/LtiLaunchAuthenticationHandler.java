@@ -99,6 +99,16 @@ public class LtiLaunchAuthenticationHandler implements OAuthAuthenticationHandle
   /** The key to look up whether the digest user should be able to authenticate via LTI **/
   private static final String ALLOW_DIGEST_USER_KEY = "lti.allow_digest_user";
 
+  /** If the Role exists add CUSTOM_ROLES to this user **/
+  private static final String CUSTOM_ROLE_NAME = "lti.custom_role_name";
+
+  /** If the Role exists add CUSTOM_ROLES to this user **/
+  private static final String CUSTOM_ROLES = "lti.custom_roles";
+
+  private String customRoleName = "";
+
+  private String[] customRoles;
+
   /** The user details service */
   private UserDetailsService userDetailsService;
 
@@ -165,6 +175,13 @@ public class LtiLaunchAuthenticationHandler implements OAuthAuthenticationHandle
       }
       usernameBlacklist.add(username);
     }
+    // custom roles
+    customRoleName = StringUtils.trimToNull((String) properties.get(CUSTOM_ROLE_NAME));
+    if (customRoleName != null) {
+      String custumRolesString = StringUtils.trimToNull((String) properties.get(CUSTOM_ROLES));
+      customRoles = custumRolesString.split(",");
+    }
+
   }
 
   /**
@@ -286,10 +303,19 @@ public class LtiLaunchAuthenticationHandler implements OAuthAuthenticationHandle
       for (String learner : roleList) {
         // Build the role
         String role;
+        String group;
+        if (learner.equals(customRoleName)) {
+          for (String rolename : customRoles) {
+            userAuthorities.add(new SimpleGrantedAuthority(rolename));
+          }
+        }
+
         if (StringUtils.isBlank(learner)) {
           role = context + "_" + DEFAULT_LEARNER;
         } else {
           role = context + "_" + learner;
+          group = "ROLE_GROUP_" + learner.toUpperCase();
+          logger.debug("Adding group: {}", group);
         }
 
         // Make sure to not accept ROLE_…
