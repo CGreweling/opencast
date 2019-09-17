@@ -28,6 +28,9 @@ import org.opencastproject.security.api.SecurityService;
 import org.opencastproject.security.api.User;
 import org.opencastproject.security.api.UserProvider;
 
+import org.apache.commons.lang3.StringUtils;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -54,13 +57,23 @@ public class ConfigurablePatternUserProvider implements UserProvider {
 
   private static final Logger logger = LoggerFactory.getLogger(ConfigurablePatternUserProvider.class);
 
-  // should be configurable
-  private Pattern pattern = Pattern.compile("^lti:unios:.*$");
+  private static final String MATCH_USER_PATTERN = "match_user_pattern";
+
+  private Pattern pattern = null;
 
   private SecurityService securityService;
 
-  private void activate() {
+  @Activate
+  private void activate(ComponentContext cc) {
     logger.info("{} loaded", ConfigurablePatternUserProvider.class.getSimpleName());
+
+    if (cc != null) {
+      String userPattern = StringUtils.trimToNull((String) cc.getProperties().get(MATCH_USER_PATTERN));
+      if (userPattern != null) {
+        logger.debug("Updating ConfigurableUserProvider");
+        pattern = Pattern.compile(userPattern);
+      }
+    }
   }
 
   @Reference
@@ -80,13 +93,15 @@ public class ConfigurablePatternUserProvider implements UserProvider {
 
   @Override
   public User loadUser(final String userName) {
-    if (!pattern.matcher(userName).matches()) {
+    if (!pattern.matcher(userName).matches() | pattern == null) {
       return null;
     }
     final JaxbOrganization organization = JaxbOrganization.fromOrganization(securityService.getOrganization());
     final Set<JaxbRole> roles = new HashSet<>();
     roles.add(new JaxbRole(organization.getAnonymousRole(), organization));
-    return new JaxbUser(userName, getName(), organization, roles);
+    String studipId = userName.replace("lti:unios:","");
+    roles.add(new JaxbRole(studipId + "_INSTRUCTOR", organization));
+    return new JaxbUser(userName, getName(),userName ,"nomail@mail.com","LTI", organization, roles);
   }
 
   @Override
