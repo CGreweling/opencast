@@ -138,9 +138,9 @@ public class SearchRestService extends AbstractJobProducerEndpoint {
   @DELETE
   @Path("/seriesId/{seriesid}")
   @Produces(MediaType.APPLICATION_XML)
-  @RestQuery(name = "removeSeries", description = "Removes a Series from the search index.", pathParameters = { @RestParameter(description = "The media package ID to remove from the search index.", isRequired = true, name = "seriesid", type = RestParameter.Type.STRING) }, reponses = {
+  @RestQuery(name = "removeSeries", description = "Removes a series from the search index.", pathParameters = { @RestParameter(description = "The series ID to remove from the search index.", isRequired = true, name = "seriesid", type = RestParameter.Type.STRING) }, reponses = {
           @RestResponse(description = "The removing job.", responseCode = HttpServletResponse.SC_OK),
-          @RestResponse(description = "There has been an internal error and the mediapackage could not be deleted", responseCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR) }, returnDescription = "The job receipt")
+          @RestResponse(description = "There has been an internal error and the series could not be deleted", responseCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR) }, returnDescription = "The job receipt")
   public Response removeSeries(@PathParam("seriesid") String seriesId) throws SearchException {
     try {
       Job job = searchService.deleteSeries(seriesId);

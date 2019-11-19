@@ -70,15 +70,15 @@ public interface SearchService {
   Job delete(String mediaPackageId) throws SearchException, UnauthorizedException, NotFoundException;
 
   /**
-   * Removes the media package identified by <code>mediaPackageId</code> from the search index.
+   * Removes the series identified by <code>seriesId</code> from the search index.
    *
    * @param seriesId
-   *          id of the Series to remove
-   * @return <code>true</code> if the episode was found and deleted
+   *          id of the series to remove
+   * @return <code>true</code> if the Series was found and deleted
    * @throws SearchException
-   *           if an error occurs while removing the media package
+   *           if an error occurs while removing the Series
    * @throws UnauthorizedException
-   *           if the current user is not authorized to remove this mediapackage from the search index
+   *           if the current user is not authorized to remove this series from the search index
    */
   Job deleteSeries(String seriesId) throws SearchException, UnauthorizedException, NotFoundException;
 

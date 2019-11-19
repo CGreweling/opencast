@@ -457,17 +457,17 @@ public final class SearchServiceImpl extends AbstractJobProducer implements Sear
   }
 
   /**
-   * Immediately removes the given mediapackage from the search service.
+   * Immediately removes the given series from the search service.
    *
-   * @param SeriesId
-   *          the mediapackage
-   * @return <code>true</code> if the mediapackage was deleted
+   * @param seriesId
+   *          the series
+   * @return <code>true</code> if the series was deleted
    * @throws SearchException
    *           if deletion failed
    * @throws UnauthorizedException
-   *           if the user did not have access to the media package
+   *           if the user did not have access to the series
    * @throws NotFoundException
-   *           if the mediapackage did not exist
+   *           if the series did not exist
    */
   public boolean deleteSeriesSynchronously(String seriesId) throws SearchException, UnauthorizedException,
           NotFoundException {
@@ -476,7 +476,7 @@ public final class SearchServiceImpl extends AbstractJobProducer implements Sear
       result = solrRequester.getForWrite(new SearchQuery().withSeriesId(seriesId));
       if (result.getItems().length == 0) {
         logger.warn(
-                "Can not delete mediapackage {}, which is not available for the current user to delete from the search index.",
+                "Can not delete Series {}, which is not available for the current user to delete from the search index.",
                 seriesId);
         return false;
       }
@@ -487,11 +487,10 @@ public final class SearchServiceImpl extends AbstractJobProducer implements Sear
         persistence.deleteSeries(seriesId, now);
         logger.info("Removed Series {} from search persistence", seriesId);
       } catch (NotFoundException e) {
-        // even if mp not found in persistence, it might still exist in search index.
         logger.info("Could not find Series with id {} in persistence, but will try remove it from index, anyway.",
                 seriesId);
       } catch (SearchServiceDatabaseException e) {
-        logger.error("Could not delete Series package with id {} from persistence storage", seriesId);
+        logger.error("Could not delete Series with id {} from persistence storage", seriesId);
         throw new SearchException(e);
       }
 

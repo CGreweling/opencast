@@ -127,16 +127,16 @@ public interface SearchServiceDatabase {
           NotFoundException;
 
   /**
-   * Removes media package from persistent storage.
+   * Removes series from persistent storage.
    *
    * @param seriesId
-   *          id of the media package to be removed
+   *          id of the series to be removed
    * @param deletionDate
    *          the deletion date to set
    * @throws SearchServiceDatabaseException
    *           if exception occurs
    * @throws NotFoundException
-   *           if media package with specified id is not found
+   *           if series with specified id is not found
    */
   void deleteSeries(String seriesId, Date deletionDate) throws SearchServiceDatabaseException,
           NotFoundException;

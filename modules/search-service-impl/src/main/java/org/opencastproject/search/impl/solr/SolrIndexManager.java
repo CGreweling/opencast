@@ -214,9 +214,9 @@ public class SolrIndexManager {
   }
 
   /**
-   * Removes the entry with the given <code>id</code> from the database. The entry can either be a series or an episode.
+   * Removes the entry with the given <code>id</code> from the database.
    *
-   * @param id
+   * @param seriesid
    *          identifier of the series or episode to delete
    * @param deletionDate
    *          the deletion date
@@ -225,7 +225,6 @@ public class SolrIndexManager {
    */
   public boolean deleteSeries(String seriesid, Date deletionDate) throws SolrServerException {
     try {
-      // Load the existing episode
       QueryResponse solrResponse = null;
       try {
         SolrQuery query = new SolrQuery(Schema.DC_IS_PART_OF + ":" + ClientUtils.escapeQueryChars(seriesid) + " AND -"
@@ -235,7 +234,6 @@ public class SolrIndexManager {
         throw new SolrServerException(e1);
       }
 
-      // Did we find the episode?
       if (solrResponse.getResults().size() == 0) {
         logger.warn("Trying to delete non-existing media package {} from the search index", seriesid);
         return false;

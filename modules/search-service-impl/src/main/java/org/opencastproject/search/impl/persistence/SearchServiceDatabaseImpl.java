@@ -185,7 +185,7 @@ public class SearchServiceDatabaseImpl implements SearchServiceDatabase {
 
         SearchEntity searchEntity = getSeriesSearchEntity(seriesId, em);
         if (searchEntity == null)
-          throw new NotFoundException("No media package with id=" + seriesId + " exists");
+          throw new NotFoundException("No series with id=" + seriesId + " exists");
 
         // Ensure this user is allowed to delete this episode
         String accessControlXml = searchEntity.getAccessControl();
@@ -194,7 +194,7 @@ public class SearchServiceDatabaseImpl implements SearchServiceDatabase {
           User currentUser = securityService.getUser();
           Organization currentOrg = securityService.getOrganization();
           if (!AccessControlUtil.isAuthorized(acl, currentUser, currentOrg, WRITE.toString()))
-            throw new UnauthorizedException(currentUser + " is not authorized to delete media package " + seriesId);
+            throw new UnauthorizedException(currentUser + " is not authorized to delete series " + seriesId);
 
           searchEntity.setDeletionDate(deletionDate);
           em.merge(searchEntity);
@@ -525,7 +525,7 @@ public class SearchServiceDatabaseImpl implements SearchServiceDatabase {
    * Gets a search entity by it's id, using the current organizational context.
    *
    * @param id
-   *          the media package identifier
+   *          the series identifier
    * @param em
    *          an open entity manager
    * @return the search entity, or null if not found
