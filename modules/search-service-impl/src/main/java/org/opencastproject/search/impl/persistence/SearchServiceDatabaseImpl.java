@@ -173,6 +173,47 @@ public class SearchServiceDatabaseImpl implements SearchServiceDatabase {
     }
   }
 
+  @Override
+  public void deleteSeries(String seriesId, Date deletionDate)
+          throws SearchServiceDatabaseException, NotFoundException {
+      EntityManager em = null;
+      EntityTransaction tx = null;
+      try {
+        em = emf.createEntityManager();
+        tx = em.getTransaction();
+        tx.begin();
+
+        SearchEntity searchEntity = getSeriesSearchEntity(seriesId, em);
+        if (searchEntity == null)
+          throw new NotFoundException("No series with id=" + seriesId + " exists");
+
+        // Ensure this user is allowed to delete this episode
+        String accessControlXml = searchEntity.getAccessControl();
+        if (accessControlXml != null) {
+          AccessControlList acl = AccessControlParser.parseAcl(accessControlXml);
+          User currentUser = securityService.getUser();
+          Organization currentOrg = securityService.getOrganization();
+          if (!AccessControlUtil.isAuthorized(acl, currentUser, currentOrg, WRITE.toString()))
+            throw new UnauthorizedException(currentUser + " is not authorized to delete series " + seriesId);
+
+          searchEntity.setDeletionDate(deletionDate);
+          em.merge(searchEntity);
+        }
+        tx.commit();
+      } catch (NotFoundException e) {
+        throw e;
+      } catch (Exception e) {
+        logger.error("Could not delete Series {}: {}", seriesId, e.getMessage());
+        if (tx.isActive()) {
+          tx.rollback();
+        }
+        throw new SearchServiceDatabaseException(e);
+      } finally {
+        if (em != null)
+          em.close();
+      }
+    }
+
   /**
    * {@inheritDoc}
    *
@@ -474,6 +515,23 @@ public class SearchServiceDatabaseImpl implements SearchServiceDatabase {
    */
   private SearchEntity getSearchEntity(String id, EntityManager em) {
     Query q = em.createNamedQuery("Search.findById").setParameter("mediaPackageId", id);
+    try {
+      return (SearchEntity) q.getSingleResult();
+    } catch (NoResultException e) {
+      return null;
+    }
+  }
+  /**
+   * Gets a search entity by it's id, using the current organizational context.
+   *
+   * @param id
+   *          the series identifier
+   * @param em
+   *          an open entity manager
+   * @return the search entity, or null if not found
+   */
+  private SearchEntity getSeriesSearchEntity(String id, EntityManager em) {
+    Query q = em.createNamedQuery("Search.findBySeriesId").setParameter("seriesId", id);
     try {
       return (SearchEntity) q.getSingleResult();
     } catch (NoResultException e) {

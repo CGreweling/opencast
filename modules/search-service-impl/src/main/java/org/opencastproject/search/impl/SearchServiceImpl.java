@@ -123,7 +123,7 @@ public final class SearchServiceImpl extends AbstractJobProducer implements Sear
 
   /** List of available operations on jobs */
   private enum Operation {
-    Add, Delete
+    Add, Delete, DeleteSeries
   };
 
   /** Solr server */
@@ -398,6 +398,19 @@ public final class SearchServiceImpl extends AbstractJobProducer implements Sear
   }
 
   /**
+   * {@inheritDoc}
+   *
+   * @see org.opencastproject.search.api.SearchService#delete(java.lang.String)
+   */
+  public Job deleteSeries(String seriesId) throws SearchException, UnauthorizedException, NotFoundException {
+    try {
+      return serviceRegistry.createJob(JOB_TYPE, Operation.DeleteSeries.toString(), Arrays.asList(seriesId), deleteJobLoad);
+    } catch (ServiceRegistryException e) {
+      throw new SearchException(e);
+    }
+  }
+
+  /**
    * Immediately removes the given mediapackage from the search service.
    *
    * @param mediaPackageId
@@ -439,6 +452,51 @@ public final class SearchServiceImpl extends AbstractJobProducer implements Sear
       return indexManager.delete(mediaPackageId, now);
     } catch (SolrServerException e) {
       logger.info("Could not delete media package with id {} from search index", mediaPackageId);
+      throw new SearchException(e);
+    }
+  }
+
+  /**
+   * Immediately removes the given series from the search service.
+   *
+   * @param seriesId
+   *          the series
+   * @return <code>true</code> if the series was deleted
+   * @throws SearchException
+   *           if deletion failed
+   * @throws UnauthorizedException
+   *           if the user did not have access to the series
+   * @throws NotFoundException
+   *           if the series did not exist
+   */
+  public boolean deleteSeriesSynchronously(String seriesId) throws SearchException, UnauthorizedException,
+          NotFoundException {
+    SearchResult result;
+    try {
+      result = solrRequester.getForWrite(new SearchQuery().withSeriesId(seriesId));
+      if (result.getItems().length == 0) {
+        logger.warn(
+                "Can not delete Series {}, which is not available for the current user to delete from the search index.",
+                seriesId);
+        return false;
+      }
+      logger.info("Removing Series {} from search index", seriesId);
+
+      Date now = new Date();
+      try {
+        persistence.deleteSeries(seriesId, now);
+        logger.info("Removed Series {} from search persistence", seriesId);
+      } catch (NotFoundException e) {
+        logger.info("Could not find Series with id {} in persistence, but will try remove it from index, anyway.",
+                seriesId);
+      } catch (SearchServiceDatabaseException e) {
+        logger.error("Could not delete Series with id {} from persistence storage", seriesId);
+        throw new SearchException(e);
+      }
+
+      return indexManager.delete(seriesId, now);
+    } catch (SolrServerException e) {
+      logger.info("Could not delete Series with id {} from search index", seriesId);
       throw new SearchException(e);
     }
   }
@@ -598,6 +656,10 @@ public final class SearchServiceImpl extends AbstractJobProducer implements Sear
         case Delete:
           String mediapackageId = arguments.get(0);
           boolean deleted = deleteSynchronously(mediapackageId);
+          return Boolean.toString(deleted);
+        case DeleteSeries:
+          String seriesId = arguments.get(0);
+          deleted = deleteSeriesSynchronously(seriesId);
           return Boolean.toString(deleted);
         default:
           throw new IllegalStateException("Don't know how to handle operation '" + operation + "'");
