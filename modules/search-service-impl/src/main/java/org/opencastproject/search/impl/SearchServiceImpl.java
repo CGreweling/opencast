@@ -473,12 +473,13 @@ public final class SearchServiceImpl extends AbstractJobProducer implements Sear
           NotFoundException {
     SearchResult result;
     try {
+      SearchQuery searchQuery =  new SearchQuery().withSeriesId(seriesId);
       result = solrRequester.getForWrite(new SearchQuery().withSeriesId(seriesId));
       if (result.getItems().length == 0) {
         logger.warn(
                 "Can not delete Series {}, which is not available for the current user to delete from the search index.",
                 seriesId);
-        return false;
+        //return false;
       }
       logger.info("Removing Series {} from search index", seriesId);
 
