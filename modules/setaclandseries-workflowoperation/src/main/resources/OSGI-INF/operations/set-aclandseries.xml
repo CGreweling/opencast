@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0"
+ name="org.opencastproject.workflow.handler.acl.SetAclandSeriesWorkflowOperationHandler" immediate="true" activate="activate">
+  <implementation class="org.opencastproject.workflow.handler.acl.SetAclandSeriesWorkflowOperationHandler" />
+  <property name="service.description" value="Apply user acl to episode by filename" />
+  <property name="workflow.operation" value="setaclandseries" />
+  <service>
+    <provide interface="org.opencastproject.workflow.api.WorkflowOperationHandler" />
+  </service>
+  <reference name="authorization" interface="org.opencastproject.security.api.AuthorizationService"
+    cardinality="1..1" policy="static" bind="setAuthorizationService" />
+  <reference name="series" interface="org.opencastproject.series.api.SeriesService"
+             cardinality="1..1" policy="static" bind="setSeriesService" />
+  <reference name="workspace" interface="org.opencastproject.workspace.api.Workspace"
+             cardinality="1..1" policy="static" bind="setWorkspace" />
+</scr:component>

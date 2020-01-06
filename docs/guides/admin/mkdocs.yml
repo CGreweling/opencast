@@ -164,6 +164,7 @@ nav:
    - Execute Many: 'workflowoperationhandlers/execute-many-woh.md'
    - Export Workflow Properties: 'workflowoperationhandlers/export-wf-properties-woh.md'
    - Extract Text: 'workflowoperationhandlers/extracttext-woh.md'
+   - NameToAcl: 'workflowoperationhandlers/setaclandseries-woh.md'
    - Failing: 'workflowoperationhandlers/failing-woh.md'
    - Google Speech Attach Transcription: 'workflowoperationhandlers/google-speech-attach-transcription-woh.md'
    - Google Speech Start Transcription: 'workflowoperationhandlers/google-speech-start-transcription-woh.md'
