@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0"
+               name="org.opencastproject.mergemediapackages.impl.endpoint.MergeMediapackagesServiceRestEndpoint" immediate="true">
+  <implementation class="org.opencastproject.mergemediapackages.impl.endpoint.MergeMediapackagesServiceRestEndpoint"/>
+  <property name="service.description" value="mergemediapackages Service REST Endpoint"/>
+
+  <property name="opencast.service.type" value="org.opencastproject.mergemediapackages"/>
+  <property name="opencast.service.path" value="/mergemediapackages"/>
+
+  <service>
+    <provide interface="org.opencastproject.mergemediapackages.impl.endpoint.MergeMediapackagesServiceRestEndpoint"/>
+  </service>
+  <reference name="mergemediapackagesService" interface="org.opencastproject.mergemediapackages.api.MergeMediapackagesService"
+             bind="setmergemediapackagesService"/>
+
+</scr:component>

@@ -145,6 +145,8 @@
     <module>modules/live-schedule-impl</module>
     <module>modules/logging-workflowoperation</module>
     <module>modules/lti</module>
+    <module>modules/mergemediapackages-api</module>
+    <module>modules/mergemediapackages-impl</module>
     <module>modules/mattermost-notification-workflowoperation</module>
     <module>modules/message-broker-api</module>
     <module>modules/message-broker-impl</module>
