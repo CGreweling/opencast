@@ -33,9 +33,6 @@ import org.opencastproject.userdirectory.api.UserReferenceProvider;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -58,14 +55,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
-
-@Component(
-        property = {
-                "service.description=Lti User Login"
-        },
-        immediate = true,
-        service = { LtiLaunchAuthenticationHandler.class, OAuthAuthenticationHandler.class }
-)
 
 /**
  * Callback interface for handing authentication details that are used when an authenticated request for a protected
@@ -133,7 +122,6 @@ public class LtiLaunchAuthenticationHandler implements OAuthAuthenticationHandle
   /** Set of usernames that should not authenticated as themselves even if the OAuth consumer keys is trusted */
   private Set<String> usernameBlacklist = new HashSet<>();
 
-  @Reference(name = "UserDetailsService")
   public void setUserDetailsService(UserDetailsService userDetailsService) {
     this.userDetailsService = userDetailsService;
   }
@@ -144,7 +132,6 @@ public class LtiLaunchAuthenticationHandler implements OAuthAuthenticationHandle
    * @param userReferenceProvider
    *          the user reference provider
    */
-  @Reference(name = "ReferenceProvider")
   public void setUserReferenceProvider(UserReferenceProvider userReferenceProvider) {
     this.userReferenceProvider = userReferenceProvider;
   }
@@ -155,12 +142,10 @@ public class LtiLaunchAuthenticationHandler implements OAuthAuthenticationHandle
    * @param securityService
    *          the security service
    */
-  @Reference(name = "SecurityService")
   public void setSecurityService(SecurityService securityService) {
     this.securityService = securityService;
   }
 
-  @Activate
   protected void activate(ComponentContext cc) {
     logger.info("Activating LtiLaunchAuthenticationHandler");
     componentContext = cc;
