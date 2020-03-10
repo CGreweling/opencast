@@ -2,13 +2,16 @@
 <definition xmlns="http://workflow.opencastproject.org">
 
   <id>import</id>
-  <title>Import Mediapackage and Publish without reencode</title>
+  <title>Import mediapackage and publish without reencode</title>
   <tags>
   </tags>
   <description>
-  A minimal Workflow that only publishes a Mediapackage
+    A minimal workflow that only publishes a mediapackage
   </description>
-
+  <state-mappings>
+    <state-mapping state="running">EVENTS.EVENTS.STATE_MAPPING.IMPORTING</state-mapping>
+    <state-mapping state="failing">EVENTS.EVENTS.STATE_MAPPING.IMPORTING</state-mapping>
+  </state-mappings>
   <operations>
 
     <!-- Ingest elements from external working file repositories and file servers -->
@@ -55,7 +58,9 @@
       <configurations>
         <configuration key="source-tags">engage-download</configuration>
         <configuration key="channel-id">internal</configuration>
-        <configuration key="url-pattern">http://localhost:8080/admin-ng/index.html#/events/events/${event_id}/tools/playback</configuration>
+        <configuration key="url-pattern">
+          ${org_org_opencastproject_admin_ui_url!'http://localhost:8080'}/admin-ng/index.html#/events/events/${event_id}/tools/editor
+        </configuration>
         <configuration key="check-availability">true</configuration>
       </configurations>
     </operation>
@@ -95,15 +100,10 @@
       fail-on-error="false"
       description="Cleaning up">
       <configurations>
-        <configuration key="delete-external">true</configuration>
+        <configuration key="delete-external">false</configuration>
+        <configuration key="preserve-flavors">security/*</configuration>
       </configurations>
     </operation>
 
   </operations>
-
-  <state-mappings>
-    <state-mapping state="running">EVENTS.EVENTS.STATE_MAPPING.IMPORTING</state-mapping>
-    <state-mapping state="failing">EVENTS.EVENTS.STATE_MAPPING.IMPORTING</state-mapping>
-  </state-mappings>
-
 </definition>
