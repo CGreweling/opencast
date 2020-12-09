@@ -2,21 +2,20 @@
  * Licensed to The Apereo Foundation under one or more contributor license
  * agreements. See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
- *
- *
+ * <p>
+ * <p>
  * The Apereo Foundation licenses this file to you under the Educational
  * Community License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License
  * at:
- *
- *   http://opensource.org/licenses/ecl2.txt
- *
+ * <p>
+ * http://opensource.org/licenses/ecl2.txt
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
  * License for the specific language governing permissions and limitations under
  * the License.
- *
  */
 
 package org.opencastproject.workflow.handler.composer;
@@ -98,7 +97,8 @@ public class MultiEncodeWorkflowOperationHandler extends AbstractWorkflowOperati
     this.workspace = workspace;
   }
 
-  private Predicate<EncodingProfile> isManifestEP = p ->  p.getOutputType() == EncodingProfile.MediaType.Manifest;
+  private Predicate<EncodingProfileWithFlavor> isManifestEP = p -> p.getEncodingProfile().getOutputType()
+          == EncodingProfile.MediaType.Manifest;
 
   /**
    * {@inheritDoc}
@@ -160,9 +160,9 @@ public class MultiEncodeWorkflowOperationHandler extends AbstractWorkflowOperati
           flavorIdx++;
         }
       }
-      logger.info("Created entry for profiles '{}' (length: '{}') and target-flavors '{}'", profiles, encodingProfiles.size(), targetFlavors);
+      logger.info("Created entry for profiles '{}' (length: '{}') and target-flavors '{}'", profiles,
+              encodingProfiles.size(), targetFlavors);
     }
-
 
     public AbstractMediaPackageElementSelector<Track> getSelector() {
       return this.elementSelector;
@@ -172,7 +172,7 @@ public class MultiEncodeWorkflowOperationHandler extends AbstractWorkflowOperati
       return this.encodingProfiles;
     }
 
-    public List<EncodingProfile> getEncodingProfiles() {
+    public List<EncodingProfileWithFlavor> getEncodingProfiles() {
       return this.encodingProfileList;
     }
 
@@ -228,8 +228,9 @@ public class MultiEncodeWorkflowOperationHandler extends AbstractWorkflowOperati
     if (sourceTags != null) { // If source tags are used to select tracks
       // If use source and target tags, there should be the same number of them or all map into one target
       if (targetTags != null && (targetTags.length != 1 && sourceTags.length != targetTags.length))
-        throw new WorkflowOperationException("number of source tags " + sourceTags.length
-                + " does not match number of target tags " + targetTags.length + " (must be the same or one target)");
+        throw new WorkflowOperationException(
+                "number of source tags " + sourceTags.length + " does not match number of target tags "
+                        + targetTags.length + " (must be the same or one target)");
       // There should be the same number of source tags or profile groups or all use same group of profiles
       if (profiles.length != 1 && sourceTags.length != profiles.length) {
         throw new WorkflowOperationException(
@@ -371,7 +372,8 @@ public class MultiEncodeWorkflowOperationHandler extends AbstractWorkflowOperati
     String[] targetFlavors = getConfigAsArray(operation, "target-flavors");
     String tagWithProfileConfig = StringUtils.trimToNull(operation.getConfiguration("tag-with-profile"));
     boolean tagWithProfile = BooleanUtils.toBoolean(tagWithProfileConfig);
-    boolean targetFlavorPerProfile = BooleanUtils.toBoolean(StringUtils.trimToNull(operation.getConfiguration("flavor-per-profile")));
+    boolean targetFlavorPerProfile = BooleanUtils
+            .toBoolean(StringUtils.trimToNull(operation.getConfiguration("flavor-per-profile")));
 
     // Make sure either one of tags or flavors are provided
     if (sourceFlavors == null && sourceTags == null) {
@@ -411,27 +413,27 @@ public class MultiEncodeWorkflowOperationHandler extends AbstractWorkflowOperati
     }
 
     // Process the result
-    for (Map.Entry<Job, JobInformation> entry : encodingJobs.entrySet()) {
-      Job job = entry.getKey();
-      Track sourceTrack = entry.getValue().getTrack(); // source
-      ElementProfileTagFlavor info = entry.getValue().getInfo(); // tags and flavors
-      List<EncodingProfileWithFlavor> eplist = entry.getValue().getProfileList();
+    for (Map.Entry<Job, JobInformation> jobEntry : encodingJobs.entrySet()) {
+      Job job = jobEntry.getKey();
+      Track sourceTrack = jobEntry.getValue().getTrack(); // source
+      ElementProfileTagFlavor info = jobEntry.getValue().getInfo(); // tags and flavors
+      List<EncodingProfileWithFlavor> eplist = jobEntry.getValue().getProfileList();
       // add this receipt's queue time to the total
       totalTimeInQueue += job.getQueueTime();
       // it is allowed for compose jobs to return an empty payload. See the EncodeEngine interface
       if (job.getPayload().length() > 0) {
-        @SuppressWarnings("unchecked")
-        List<Track> composedTracks = (List<Track>) MediaPackageElementParser.getArrayFromXml(job.getPayload());
+        @SuppressWarnings("unchecked") List<Track> composedTracks = (List<Track>) MediaPackageElementParser
+                .getArrayFromXml(job.getPayload());
         // HLS Manifest profile has precedence and overrides individual encoding profiles
         boolean isHLS = eplist.stream().anyMatch(isManifestEP);
         if (isHLS) { // check that manifests and segments counts are correct
-          decipherHLSPlaylistResults(sourceTrack, entry.getValue(), mediaPackage, composedTracks);
+          decipherHLSPlaylistResults(sourceTrack, jobEntry.getValue(), mediaPackage, composedTracks);
         } else if (composedTracks.size() != info.getProfiles().size()) {
           logger.info("Encoded {} tracks, with {} profiles", composedTracks.size(), info.getProfiles().size());
           throw new WorkflowOperationException("Number of output tracks does not match number of encoding profiles");
         }
         for (Track composedTrack : composedTracks) {
-          if (info.getTargetFlavor() != null && !entry.getValue().getFlavorPerProfile()) { // Has Flavors
+          if (info.getTargetFlavor() != null && !jobEntry.getValue().getFlavorPerProfile()) { // Has Flavors
             // set it to the matching flavor in the order listed
             composedTrack.setFlavor(newFlavor(sourceTrack, info.getTargetFlavor()));
             logger.debug("Composed track has flavor '{}'", composedTrack.getFlavor());
@@ -443,34 +445,10 @@ public class MultiEncodeWorkflowOperationHandler extends AbstractWorkflowOperati
             }
           }
           // Tag each output with encoding profile name if configured
-          if (entry.getValue().getTagWithProfile() || entry.getValue().getFlavorPerProfile()) {
+          if (jobEntry.getValue().getTagWithProfile() || jobEntry.getValue().getFlavorPerProfile()) {
             tagByProfile(composedTrack, eplist); //????
-/** ca-825
-            String rawfileName = composedTrack.getURI().getRawPath();
-            List<EncodingProfile> eps = entry.getValue().getProfileList();
-            for (EncodingProfile ep : eps) {
-              List<EncodingProfileWithFlavor> eps = entry.getValue().getProfileList();
-              for (EncodingProfileWithFlavor epwf : eps) {
-                EncodingProfile ep = epwf.getEncodingProfile();
-                String targetFlavor = epwf.getTargetFlavor();
-                String suffix = ep.getSuffix();
-                // !! workspace.putInCollection renames the file - need to do the same with suffix
-                suffix = PathSupport.toSafeName(suffix);
-                if (suffix.length() > 0 && rawfileName.endsWith(suffix)) {
-                  composedTrack.addTag(ep.getIdentifier());
-                  logger.debug("Tagging composed track {} with '{}'", composedTrack.getURI(), ep.getIdentifier());
-                  if (entry.getValue().getTagWithProfile()) {
-                    composedTrack.addTag(ep.getIdentifier());
-                    logger.debug("Tagging composed track {} with '{}'", composedTrack.getURI(), ep.getIdentifier());
-                  } else if (entry.getValue().getFlavorPerProfile()) {
-                    composedTrack.setFlavor(newFlavor(sourceTrack, targetFlavor));
-                    logger.debug("Target flavor '{}' set for encoding profile '{}'", targetFlavor, ep.getIdentifier());
-                  }
-                  break;
-                }
-
- **/
-
+            /** ca-825
+             **/
 
           }
           String fileName;
@@ -505,101 +483,124 @@ public class MultiEncodeWorkflowOperationHandler extends AbstractWorkflowOperati
    *          - profiles used to encode a track to multiple formats
    * @return
    */
-  private void tagByProfile(Track track, List<EncodingProfile> profiles) {
-    String rawfileName = track.getURI().getRawPath();
-    for (EncodingProfile ep : profiles) {
-      String suffix = ep.getSuffix();
-      // !! workspace.putInCollection renames the file - need to do the same with suffix
-      suffix = PathSupport.toSafeName(suffix);
-      if (suffix.length() > 0 && rawfileName.endsWith(suffix)) {
-        track.addTag(ep.getIdentifier());
-        return;
-      }
-    }
-  }
+  private void tagByProfile(Track composedTrack, List<EncodingProfileWithFlavor> profiles) {
+    String rawfileName = composedTrack.getURI().getRawPath();
+    List<EncodingProfile> eps = profiles.getProfileList();
+    for (EncodingProfile ep : eps) {
+      List<EncodingProfileWithFlavor> eps = profiles.getValue().getProfileList();
+      for (EncodingProfileWithFlavor epwf : eps) {
+        EncodingProfile ep = epwf.getEncodingProfile();
+        String targetFlavor = epwf.getTargetFlavor();
+        String suffix = ep.getSuffix();
+        // !! workspace.putInCollection renames the file - need to do the same with suffix
+        suffix = PathSupport.toSafeName(suffix);
+        if (suffix.length() > 0 && rawfileName.endsWith(suffix)) {
+          composedTrack.addTag(ep.getIdentifier());
+          logger.debug("Tagging composed track {} with '{}'", composedTrack.getURI(), ep.getIdentifier());
+          if (entry.getValue().getTagWithProfile()) {
+            composedTrack.addTag(ep.getIdentifier());
+            logger.debug("Tagging composed track {} with '{}'", composedTrack.getURI(), ep.getIdentifier());
+          } else if (entry.getValue().getFlavorPerProfile()) {
+            composedTrack.setFlavor(newFlavor(sourceTrack, targetFlavor));
+            logger.debug("Target flavor '{}' set for encoding profile '{}'", targetFlavor, ep.getIdentifier());
+          }
+          break;
+        }
 
-  private void decipherHLSPlaylistResults(Track track, JobInformation jobInfo, MediaPackage mediaPackage,
-          List<Track> composedTracks)
+        String rawfileName = track.getURI().getRawPath();
+        for (EncodingProfile ep : profiles) {
+          String suffix = ep.getSuffix();
+          // !! workspace.putInCollection renames the file - need to do the same with suffix
+          suffix = PathSupport.toSafeName(suffix);
+          if (suffix.length() > 0 && rawfileName.endsWith(suffix)) {
+            track.addTag(ep.getIdentifier());
+            return;
+          }
+        }
+      }
+
+      private void decipherHLSPlaylistResults (Track track, JobInformation jobInfo, MediaPackage
+      mediaPackage, List < Track > composedTracks)
           throws WorkflowOperationException, IllegalArgumentException, NotFoundException, IOException {
-    int nprofiles = jobInfo.getInfo().getProfiles().size();
-    List<Track> manifests = getManifest(composedTracks);
+        int nprofiles = jobInfo.getInfo().getProfiles().size();
+        List<Track> manifests = getManifest(composedTracks);
 
-    if (manifests.size() != nprofiles) {
-      throw new WorkflowOperationException("Number of output playlists does not match number of encoding profiles");
-    }
-    if (composedTracks.size() != manifests.size() * 2 - 1) {
-      throw new WorkflowOperationException("Number of output media does not match number of encoding profiles");
-    }
-  }
-
-  private MediaPackageElementFlavor newFlavor(Track track, String flavor) throws WorkflowOperationException {
-    if (StringUtils.isNotBlank(flavor)) {
-      try {
-        MediaPackageElementFlavor targetFlavor = MediaPackageElementFlavor.parseFlavor(flavor);
-        String flavorType = targetFlavor.getType();
-        String flavorSubtype = targetFlavor.getSubtype();
-        // Adjust the target flavor. Make sure to account for partial updates
-        if ("*".equals(flavorType))
-          flavorType = track.getFlavor().getType();
-        if ("*".equals(flavorSubtype))
-          flavorSubtype = track.getFlavor().getSubtype();
-        return (new MediaPackageElementFlavor(flavorType, flavorSubtype));
-      } catch (IllegalArgumentException e) {
-        throw new WorkflowOperationException("Target flavor '" + flavor + "' is malformed");
+        if (manifests.size() != nprofiles) {
+          throw new WorkflowOperationException("Number of output playlists does not match number of encoding profiles");
+        }
+        if (composedTracks.size() != manifests.size() * 2 - 1) {
+          throw new WorkflowOperationException("Number of output media does not match number of encoding profiles");
+        }
       }
+
+      private MediaPackageElementFlavor newFlavor (Track track, String flavor) throws WorkflowOperationException {
+        if (StringUtils.isNotBlank(flavor)) {
+          try {
+            MediaPackageElementFlavor targetFlavor = MediaPackageElementFlavor.parseFlavor(flavor);
+            String flavorType = targetFlavor.getType();
+            String flavorSubtype = targetFlavor.getSubtype();
+            // Adjust the target flavor. Make sure to account for partial updates
+            if ("*".equals(flavorType))
+              flavorType = track.getFlavor().getType();
+            if ("*".equals(flavorSubtype))
+              flavorSubtype = track.getFlavor().getSubtype();
+            return (new MediaPackageElementFlavor(flavorType, flavorSubtype));
+          } catch (IllegalArgumentException e) {
+            throw new WorkflowOperationException("Target flavor '" + flavor + "' is malformed");
+          }
+        }
+        return null;
+      }
+
+      /**
+       * This class is used to store context information for the jobs.
+       */
+      private static final class JobInformation {
+
+        private Track track = null;
+        private ElementProfileTagFlavor info = null;
+        private boolean tagWithProfile;
+        // codediff CA-825 SWITCH has enhanced version of WOH multi-encode
+        private boolean flavorPerProfile;
+        // codediff END
+
+        // codediff CA-825 SWITCH has enhanced version of WOH multi-encode
+        JobInformation(Track track, ElementProfileTagFlavor info, boolean tagWithProfile, boolean flavorPerProfile) {
+          // codediff END
+          this.track = track;
+          this.info = info;
+          this.tagWithProfile = tagWithProfile;
+          // codediff CA-825 SWITCH has enhanced version of WOH multi-encode
+          this.flavorPerProfile = flavorPerProfile;
+          // codediff END
+        }
+
+        public List<EncodingProfileWithFlavor> getProfileList() {
+          return info.encodingProfileList;
+        }
+
+        /**
+         * Returns the track.
+         *
+         * @return the track
+         */
+        public Track getTrack() {
+          return track;
+        }
+
+        public boolean getTagWithProfile() {
+          return this.tagWithProfile;
+        }
+
+        // codediff CA-825 SWITCH has enhanced version of WOH multi-encode
+        public boolean getFlavorPerProfile() {
+          return this.flavorPerProfile;
+        }
+        // codediff END
+
+        public ElementProfileTagFlavor getInfo() {
+          return info;
+        }
+      }
+
     }
-    return null;
-  }
-
-  /**
-   * This class is used to store context information for the jobs.
-   */
-  private static final class JobInformation {
-
-    private Track track = null;
-    private ElementProfileTagFlavor info = null;
-    private boolean tagWithProfile;
-    // codediff CA-825 SWITCH has enhanced version of WOH multi-encode
-    private boolean flavorPerProfile;
-    // codediff END
-
-    // codediff CA-825 SWITCH has enhanced version of WOH multi-encode
-    JobInformation(Track track, ElementProfileTagFlavor info, boolean tagWithProfile, boolean flavorPerProfile) {
-    // codediff END
-      this.track = track;
-      this.info = info;
-      this.tagWithProfile = tagWithProfile;
-      // codediff CA-825 SWITCH has enhanced version of WOH multi-encode
-      this.flavorPerProfile = flavorPerProfile;
-      // codediff END
-    }
-
-    public List<EncodingProfileWithFlavor> getProfileList() {
-      return info.encodingProfileList;
-    }
-
-    /**
-     * Returns the track.
-     *
-     * @return the track
-     */
-    public Track getTrack() {
-      return track;
-    }
-
-    public boolean getTagWithProfile() {
-      return this.tagWithProfile;
-    }
-
-    // codediff CA-825 SWITCH has enhanced version of WOH multi-encode
-    public boolean getFlavorPerProfile() {
-      return this.flavorPerProfile;
-    }
-    // codediff END
-
-    public ElementProfileTagFlavor getInfo() {
-      return info;
-    }
-  }
-
-}
