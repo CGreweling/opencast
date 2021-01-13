@@ -237,6 +237,10 @@ with `<sec:remember-me services-ref="rememberMeServices" />`
 - CVE-2020-5228 – [Public Access Via OAI-PMH
   ](https://github.com/opencast/opencast/security/advisories/GHSA-6f54-3qr9-pjgj)
 
+A new [workflow operation `cut-marks-to-smil`](workflowoperationhandlers/cut-marks-to-smil-woh.md) has been added to
+allow a simpler specification of cutting information for the video editor. This was also the last piece missing from the
+[BigBlueButton recordings integration](https://github.com/elan-ev/opencast-bigbluebutton-integration) in Opencast.
+
 
 Release Schedule
 ----------------
