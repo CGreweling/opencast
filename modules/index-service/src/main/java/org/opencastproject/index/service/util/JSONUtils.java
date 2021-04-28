@@ -44,6 +44,7 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -57,6 +58,12 @@ import java.util.Set;
  * Utility class providing helpers for all operation related to JSON.
  */
 public final class JSONUtils {
+
+  /** This regex is used to reduce the users in the filter selectbox.
+   * The filter is located in the top right corner in the admin ui. */
+  private static String userFilterRegex;
+  private static final String[] userListsToReduce = {"CONTRIBUTORS", "PUBLISHER",
+          "ORGANIZERS", "CONTRIBUTORS.USERNAMES", "EVENTS.PUBLISHER", "USERS.NAME"};
 
   public static final String PATTERN_ISO_DATE = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
@@ -177,6 +184,10 @@ public final class JSONUtils {
           values = new HashMap<String, String>();
         } else {
           values = listProvidersService.getList(listProviderName.get(), query, false);
+          if (Arrays.asList(userListsToReduce).contains(listProviderName.get())) {
+            // reduces the user list ('values' map) by the configured userFilterRegex
+            values.keySet().removeIf(u -> !u.matches(userFilterRegex));
+          }
           translatable = listProvidersService.isTranslatable(listProviderName.get());
         }
 
@@ -314,6 +325,10 @@ public final class JSONUtils {
     }
 
     return map;
+  }
+
+  public static void setUserRegex(String regex) {
+    userFilterRegex = regex;
   }
 
 }
