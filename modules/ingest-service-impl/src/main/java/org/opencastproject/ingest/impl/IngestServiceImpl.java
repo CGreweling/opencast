@@ -762,13 +762,18 @@ public class IngestServiceImpl extends AbstractJobProducer implements IngestServ
       job = serviceRegistry.updateJob(job);
       String elementId = UUID.randomUUID().toString();
       logger.info("Start adding track {} from input stream on mediapackage {}", elementId, mediaPackage);
+      if (fileName.length() > 75) {
+        final String extension = "." + FilenameUtils.getExtension(fileName);
+        final int length = Math.max(0, 75 - extension.length());
+        fileName = fileName.substring(0, length) + extension;
+      }
       URI newUrl = addContentToRepo(mediaPackage, elementId, fileName, in);
       MediaPackage mp = addContentToMediaPackage(mediaPackage, elementId, newUrl, MediaPackageElement.Type.Track,
               flavor);
       if (tags != null && tags.length > 0) {
         MediaPackageElement trackElement = mp.getTrack(elementId);
         for (String tag : tags) {
-          logger.info("Adding Tag: " + tag + " to Element: " + elementId);
+          logger.debug("Adding tag `{}` to element {}", tag, elementId);
           trackElement.addTag(tag);
         }
       }
