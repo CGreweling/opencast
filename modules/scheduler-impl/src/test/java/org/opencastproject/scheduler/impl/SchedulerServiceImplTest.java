@@ -22,9 +22,7 @@
 package org.opencastproject.scheduler.impl;
 
 import static net.fortuna.ical4j.model.Component.VEVENT;
-import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.assertEquals;
@@ -78,7 +76,9 @@ import org.opencastproject.assetmanager.impl.HttpAssetProvider;
 import org.opencastproject.assetmanager.impl.VersionImpl;
 import org.opencastproject.assetmanager.impl.persistence.Database;
 import org.opencastproject.authorization.xacml.XACMLUtils;
+import org.opencastproject.elasticsearch.api.SearchResult;
 import org.opencastproject.elasticsearch.index.AbstractSearchIndex;
+import org.opencastproject.elasticsearch.index.event.EventSearchQuery;
 import org.opencastproject.mediapackage.Attachment;
 import org.opencastproject.mediapackage.Catalog;
 import org.opencastproject.mediapackage.EName;
@@ -91,10 +91,7 @@ import org.opencastproject.mediapackage.MediaPackageElements;
 import org.opencastproject.mediapackage.MediaPackageException;
 import org.opencastproject.mediapackage.identifier.IdImpl;
 import org.opencastproject.message.broker.api.BaseMessage;
-import org.opencastproject.message.broker.api.MessageReceiver;
 import org.opencastproject.message.broker.api.MessageSender;
-import org.opencastproject.message.broker.api.scheduler.SchedulerItem;
-import org.opencastproject.message.broker.api.scheduler.SchedulerItemList;
 import org.opencastproject.metadata.dublincore.DCMIPeriod;
 import org.opencastproject.metadata.dublincore.DublinCoreCatalog;
 import org.opencastproject.metadata.dublincore.DublinCoreCatalogList;
@@ -158,8 +155,6 @@ import net.fortuna.ical4j.model.property.RRule;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.easymock.Capture;
-import org.easymock.CaptureType;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.junit.After;
@@ -175,7 +170,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -195,8 +189,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManagerFactory;
@@ -220,6 +212,7 @@ public class SchedulerServiceImplTest {
   private Organization currentOrg = new DefaultOrganization();
 
   private static SchedulerServiceImpl schedSvc;
+  private static AbstractSearchIndex index;
 
   // persistent properties
   private static SchedulerServiceDatabaseImpl schedulerDatabase;
@@ -243,16 +236,6 @@ public class SchedulerServiceImplTest {
     MessageSender messageSender = EasyMock.createNiceMock(MessageSender.class);
 
     final BaseMessage baseMessageMock = EasyMock.createNiceMock(BaseMessage.class);
-
-    MessageReceiver messageReceiver = EasyMock.createNiceMock(MessageReceiver.class);
-    EasyMock.expect(messageReceiver.receiveSerializable(EasyMock.anyString(),
-            EasyMock.anyObject(MessageSender.DestinationType.class)))
-            .andStubReturn(new FutureTask<>(new Callable<Serializable>() {
-              @Override
-              public Serializable call() throws Exception {
-                return baseMessageMock;
-              }
-            }));
 
     AuthorizationService authorizationService = EasyMock.createNiceMock(AuthorizationService.class);
     acl = new AccessControlList(new AccessControlEntry("ROLE_ADMIN", "write", true),
@@ -282,7 +265,13 @@ public class SchedulerServiceImplTest {
     ComponentContext componentContext = EasyMock.createNiceMock(ComponentContext.class);
     EasyMock.expect(componentContext.getBundleContext()).andReturn(bundleContext).anyTimes();
 
-    EasyMock.replay(messageSender, baseMessageMock, messageReceiver, authorizationService,
+    SearchResult result = EasyMock.createNiceMock(SearchResult.class);
+
+    index = EasyMock.createNiceMock(AbstractSearchIndex.class);
+    EasyMock.expect(index.getIndexName()).andReturn("index").anyTimes();
+    EasyMock.expect(index.getByQuery(EasyMock.anyObject(EventSearchQuery.class))).andReturn(result).anyTimes();
+
+    EasyMock.replay(messageSender, baseMessageMock, authorizationService, index, result,
             extendedAdapter, episodeAdapter, orgDirectoryService, componentContext, bundleContext);
 
     schedSvc = new SchedulerServiceImpl();
@@ -290,10 +279,11 @@ public class SchedulerServiceImplTest {
     schedSvc.setAuthorizationService(authorizationService);
     schedSvc.setWorkspace(workspace);
     schedSvc.setMessageSender(messageSender);
-    schedSvc.setMessageReceiver(messageReceiver);
     schedSvc.addCatalogUIAdapter(episodeAdapter);
     schedSvc.addCatalogUIAdapter(extendedAdapter);
     schedSvc.setOrgDirectoryService(orgDirectoryService);
+    schedSvc.setAdminUiIndex(index);
+    schedSvc.setExternalApiIndex(index);
 
     schedSvc.activate(componentContext);
   }
@@ -1530,15 +1520,6 @@ public class SchedulerServiceImplTest {
     EasyMock.expectLastCall().anyTimes();
     EasyMock.replay(orgDirectoryService, securityService);
 
-    MessageSender messageSender = schedSvc.getMessageSender();
-    EasyMock.reset(messageSender);
-    Capture<SchedulerItemList> schedulerItemsCapture = Capture.newInstance(CaptureType.ALL);
-    messageSender.sendObjectMessage(eq(SchedulerItem.SCHEDULER_QUEUE_PREFIX + "Adminui"),
-            eq(MessageSender.DestinationType.Queue),
-            capture(schedulerItemsCapture));
-    EasyMock.expectLastCall().anyTimes();
-    EasyMock.replay(messageSender);
-
     // create test events for each organization
     for (User user : usersList) {
       currentUser = user;
@@ -1547,24 +1528,17 @@ public class SchedulerServiceImplTest {
     }
     currentUser = usersList.get(0);
     currentOrg = currentUser.getOrganization();
-    schedulerItemsCapture.reset();
 
-    AbstractSearchIndex index = EasyMock.createMock(AbstractSearchIndex.class);
-    EasyMock.expect(index.getIndexName()).andReturn("adminui").anyTimes();
-    EasyMock.replay(index);
+    SearchResult result = EasyMock.createNiceMock(SearchResult.class);
+
+    EasyMock.reset(index);
+    EasyMock.expect(index.getIndexName()).andReturn("index").anyTimes();
+    EasyMock.expect(index.getByQuery(EasyMock.anyObject(EventSearchQuery.class))).andReturn(result).anyTimes();
+    EasyMock.expect(index.addOrUpdateEvent(EasyMock.anyString(), EasyMock.anyObject(java.util.function.Function.class),
+            EasyMock.anyString(), EasyMock.anyObject(User.class))).andReturn(Optional.empty()).times(orgList.size());
+    EasyMock.replay(index, result);
 
     schedSvc.repopulate(index);
-    assertTrue(schedulerItemsCapture.hasCaptured());
-    List<DublinCoreCatalog> dublincoreCatalogs = new ArrayList<>();
-    for (SchedulerItemList schedulerItemList : schedulerItemsCapture.getValues()) {
-      for (SchedulerItem schedulerItem : schedulerItemList.getItems()) {
-        if (schedulerItem.getType() == SchedulerItem.Type.UpdateCatalog) {
-          DublinCoreCatalog snapshotDC = schedulerItem.getEvent();
-          dublincoreCatalogs.add(snapshotDC);
-        }
-      }
-    }
-    assertEquals(orgList.size(), dublincoreCatalogs.size());
   }
 
   private String addDublinCore(Opt<String> id, MediaPackage mediaPackage, final DublinCoreCatalog initalEvent)
