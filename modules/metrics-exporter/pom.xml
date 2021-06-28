@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.opencastproject</groupId>
     <artifactId>base</artifactId>
-    <version>10-SNAPSHOT</version>
+    <version>11-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <properties>
@@ -101,7 +101,10 @@
               javax.ws.rs;version=2.0.1,
               javax.ws.rs.core;version=2.0.1,
               !io.opentelemetry.*,
+<<<<<<< HEAD
               !com.sun.management.*,
+=======
+>>>>>>> 8e125c46e4470b6fc2dbc80e41298f575c9f1c92
               *
             </Import-Package>
             <Embed-Dependency>

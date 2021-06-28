@@ -235,7 +235,7 @@
       "SERVICE_UNAVAILABLE": "Oups! Le serveur semble être injoignable. Veuillez réessayer ultérieurement.",
       "ACTIVE_TRANSACTION": "Cet événement ne peut pas être modifié, pendant qu’il y a un flux de travail actif ou une transaction.",
       "BULK_METADATA_UPDATE": {
-         "UNEXPECTED_ERROR": "An unexpected error occurred while updating. Some events might have been updated.",
+         "UNEXPECTED_ERROR": "Une erreur inattendue s'est produite lors de la mise à jour. Certains événements peuvent avoir été mis à jour.",
          "ALL_EVENTS_UPDATED": "Tous les événements ont été mis à jour avec succès.",
          "NO_EVENTS_UPDATED": "Toutes les mises à jour ont échoué.",
          "SOME_EVENTS_NOT_UPDATED": "Certains événements n'ont pas pu être mis à jour."
@@ -314,7 +314,7 @@
       },
       "EDIT_EVENTS_METADATA": {
          "CAPTION": "Modifier les métadonnées d'événements multiples",
-         "FATAL_ERROR": "A fatal error occurred: {{ fatalError }}",
+         "FATAL_ERROR": "Une erreur fatale est survenue : {{ fatalError }}",
          "REQUEST_ERRORS": {
             "CANNOT_EDIT_SOME": "Les événements en surbrillance ne peuvent pas être modifiés.",
             "NOTHING_TO_EDIT": "Les événements ne peuvent pas être modifiés.",
@@ -410,7 +410,7 @@
             "HEADER": "Terms of Service and Privacy Policy"
          },
          "INFORMATION_STATE": {
-            "HEADER": "Merci d'avoir utilisé Opencast!",
+            "HEADER": "Thank you for using Opencast!",
             "INFORMATION_PARAGRAPH_1": "Our developers are constantly working to provide you the best possible user experience. For that, we need to know more about who uses Opencast and how it is used. You can help us with a quick registration.",
             "INFORMATION_PARAGRAPH_2": "We highly appreciate any feedback, as even some of the data that we gather about the Opencast usage will help us to create better software, have better chances for additional funding and attract more companies to provide services around Opencast."
          },
@@ -1609,7 +1609,7 @@
             "INSTANTIATED": "Instancié",
             "DISPATCHING": "En cours expédition",
             "RESTART": "Redémarrer",
-            "CANCELLED": "Cancelled",
+            "CANCELED": "Annulé",
             "WAITING": "En Attente"
          }
       },

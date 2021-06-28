@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.opencastproject</groupId>
     <artifactId>base</artifactId>
-    <version>10-SNAPSHOT</version>
+    <version>11-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <properties>
@@ -70,9 +70,7 @@
               org.opencastproject.external.index
             </Export-Package>
             <Service-Component>
-              OSGI-INF/message-receiver-assetmanager.xml,
-              OSGI-INF/message-receiver-scheduler.xml,
-              OSGI-INF/message-receiver-series.xml
+              OSGI-INF/message-receiver-scheduler.xml
             </Service-Component>
           </instructions>
         </configuration>

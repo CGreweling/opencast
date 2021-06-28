@@ -3,11 +3,22 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>opencast-elasticsearch-api</artifactId>
   <name>Opencast :: elasticsearch-api</name>
+<<<<<<< HEAD
+=======
+  <dependencies>
+    <dependency>
+      <groupId>org.opencastproject</groupId>
+      <artifactId>opencast-common</artifactId>
+      <version>11-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+>>>>>>> 8e125c46e4470b6fc2dbc80e41298f575c9f1c92
   <packaging>bundle</packaging>
   <parent>
     <groupId>org.opencastproject</groupId>
     <artifactId>base</artifactId>
-    <version>10-SNAPSHOT</version>
+    <version>11-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <properties>

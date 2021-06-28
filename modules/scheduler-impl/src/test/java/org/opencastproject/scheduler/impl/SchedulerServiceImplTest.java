@@ -23,7 +23,10 @@ package org.opencastproject.scheduler.impl;
 
 import static net.fortuna.ical4j.model.Component.VEVENT;
 import static org.easymock.EasyMock.capture;
+import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -65,15 +68,15 @@ import org.opencastproject.assetmanager.api.query.AQueryBuilder;
 import org.opencastproject.assetmanager.api.query.ARecord;
 import org.opencastproject.assetmanager.api.query.AResult;
 import org.opencastproject.assetmanager.api.query.RichAResult;
-import org.opencastproject.assetmanager.impl.AbstractAssetManager;
+import org.opencastproject.assetmanager.api.storage.AssetStore;
+import org.opencastproject.assetmanager.api.storage.AssetStoreException;
+import org.opencastproject.assetmanager.api.storage.DeletionSelector;
+import org.opencastproject.assetmanager.api.storage.Source;
+import org.opencastproject.assetmanager.api.storage.StoragePath;
+import org.opencastproject.assetmanager.impl.AssetManagerImpl;
 import org.opencastproject.assetmanager.impl.HttpAssetProvider;
 import org.opencastproject.assetmanager.impl.VersionImpl;
 import org.opencastproject.assetmanager.impl.persistence.Database;
-import org.opencastproject.assetmanager.impl.storage.AssetStore;
-import org.opencastproject.assetmanager.impl.storage.AssetStoreException;
-import org.opencastproject.assetmanager.impl.storage.DeletionSelector;
-import org.opencastproject.assetmanager.impl.storage.Source;
-import org.opencastproject.assetmanager.impl.storage.StoragePath;
 import org.opencastproject.authorization.xacml.XACMLUtils;
 import org.opencastproject.elasticsearch.index.AbstractSearchIndex;
 import org.opencastproject.mediapackage.Attachment;
@@ -113,6 +116,7 @@ import org.opencastproject.security.api.AccessControlList;
 import org.opencastproject.security.api.AclScope;
 import org.opencastproject.security.api.AuthorizationService;
 import org.opencastproject.security.api.DefaultOrganization;
+import org.opencastproject.security.api.JaxbOrganization;
 import org.opencastproject.security.api.JaxbRole;
 import org.opencastproject.security.api.JaxbUser;
 import org.opencastproject.security.api.Organization;
@@ -134,7 +138,6 @@ import org.opencastproject.util.data.functions.Misc;
 import org.opencastproject.util.persistencefn.PersistenceEnv;
 import org.opencastproject.util.persistencefn.PersistenceEnvs;
 import org.opencastproject.util.persistencefn.PersistenceUtil;
-import org.opencastproject.workspace.api.Workspace;
 
 import com.entwinemedia.fn.Fn;
 import com.entwinemedia.fn.data.Opt;
@@ -187,6 +190,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
@@ -1723,51 +1727,60 @@ public class SchedulerServiceImplTest {
   }
 
   AssetManager mkAssetManager() throws Exception {
-    final PersistenceEnv penv = PersistenceEnvs.mk(mkEntityManagerFactory("org.opencastproject.assetmanager.impl"));
-    final Database db = new Database(null, penv);
-    return new AbstractAssetManager() {
-
+    final EntityManagerFactory emf = mkEntityManagerFactory("org.opencastproject.assetmanager.impl");
+    final PersistenceEnv penv = PersistenceEnvs.mk(emf);
+    final Database db = new Database(emf, penv);
+    HttpAssetProvider httpAssetProvider = new HttpAssetProvider() {
       @Override
-      public HttpAssetProvider getHttpAssetProvider() {
-        // identity provider
-        return new HttpAssetProvider() {
-          @Override
-          public Snapshot prepareForDelivery(Snapshot snapshot) {
-            return AbstractAssetManager.rewriteUris(snapshot, new Fn<MediaPackageElement, URI>() {
-              @Override public URI apply(MediaPackageElement mpe) {
-                String baseName = getFileNameFromUrn(mpe).getOr(mpe.getElementType().toString());
+      public Snapshot prepareForDelivery(Snapshot snapshot) {
+        return AssetManagerImpl.rewriteUris(snapshot, new Fn<MediaPackageElement, URI>() {
+          @Override public URI apply(MediaPackageElement mpe) {
+            String baseName = AssetManagerImpl.getFileNameFromUrn(mpe).getOr(mpe.getElementType().toString());
 
-                // the returned uri must match the path of the {@link #getAsset} method
-                return uri(baseDir.toURI(),
-                        mpe.getMediaPackage().getIdentifier().toString(),
-                        mpe.getIdentifier(),
-                        baseName);
-              }
-            });
+            // the returned uri must match the path of the {@link #getAsset} method
+            return uri(baseDir.toURI(),
+                    mpe.getMediaPackage().getIdentifier().toString(),
+                    mpe.getIdentifier(),
+                    baseName);
           }
-        };
-      }
-
-      @Override
-      public Database getDb() {
-        return db;
-      }
-
-      @Override
-      protected Workspace getWorkspace() {
-        return workspace;
-      }
-
-      @Override
-      public AssetStore getLocalAssetStore() {
-        return mkAssetStore();
-      }
-
-      @Override
-      protected String getCurrentOrgId() {
-        return currentOrg.getId();
+        });
       }
     };
+
+    JaxbOrganization org = new DefaultOrganization();
+    JaxbUser user = new JaxbUser("user", null, org, new JaxbRole(DefaultOrganization.DEFAULT_ORGANIZATION_ADMIN,
+            new DefaultOrganization()));
+
+    SecurityService securityService = createNiceMock(SecurityService.class);
+    expect(securityService.getOrganization()).andReturn(org).anyTimes();
+    EasyMock.expect(securityService.getUser()).andAnswer(() -> user).anyTimes();
+    replay(securityService);
+
+    final AuthorizationService authorizationService = EasyMock.createNiceMock(AuthorizationService.class);
+    EasyMock.expect(authorizationService.getActiveAcl(EasyMock.<MediaPackage>anyObject()))
+            .andReturn(tuple(new AccessControlList(), AclScope.Episode))
+            .anyTimes();
+    EasyMock.replay(authorizationService);
+
+    MessageSender ms = EasyMock.createNiceMock(MessageSender.class);
+    EasyMock.replay(ms);
+
+    AbstractSearchIndex esIndex = EasyMock.createNiceMock(AbstractSearchIndex.class);
+    EasyMock.expect(esIndex.addOrUpdateEvent(EasyMock.anyString(), EasyMock.anyObject(java.util.function.Function.class),
+            EasyMock.anyString(), EasyMock.anyObject(User.class))).andReturn(Optional.empty()).atLeastOnce();
+    EasyMock.replay(esIndex);
+
+    AssetManagerImpl am = new AssetManagerImpl();
+    am.setHttpAssetProvider(httpAssetProvider);
+    am.setDatabase(db);
+    am.setWorkspace(workspace);
+    am.setAssetStore(mkAssetStore());
+    am.setAuthorizationService(authorizationService);
+    am.setSecurityService(securityService);
+    am.setMessageSender(ms);
+    am.setAdminUiIndex(esIndex);
+    am.setExternalApiIndex(esIndex);
+    return am;
   }
 
   AssetStore mkAssetStore() {

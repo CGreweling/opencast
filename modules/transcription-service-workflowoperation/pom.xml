@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.opencastproject</groupId>
     <artifactId>base</artifactId>
-    <version>10-SNAPSHOT</version>
+    <version>11-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <properties>
@@ -80,6 +80,15 @@
       <artifactId>easymock</artifactId>
       <scope>test</scope>
     </dependency>
+<<<<<<< HEAD
+=======
+    <dependency>
+      <groupId>org.opencastproject</groupId>
+      <artifactId>opencast-transcription-service-amberscript</artifactId>
+      <version>11-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
+>>>>>>> 8e125c46e4470b6fc2dbc80e41298f575c9f1c92
   </dependencies>
   <build>
     <plugins>
