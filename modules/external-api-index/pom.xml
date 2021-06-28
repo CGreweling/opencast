@@ -70,6 +70,11 @@
               org.opencastproject.external.index
             </Export-Package>
             <Service-Component>
+<<<<<<< HEAD
+=======
+              OSGI-INF/message-receiver-assetmanager.xml,
+              OSGI-INF/message-receiver-scheduler.xml
+>>>>>>> a32bfc35e58fd4960e2f26a770cc0333d67da615
             </Service-Component>
           </instructions>
         </configuration>
