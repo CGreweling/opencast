@@ -70,7 +70,7 @@ import junitparams.Parameters;
 @RunWith(JUnitParamsRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 // CHECKSTYLE:OFF
-public class AbstractAssetManagerSelectTest extends AbstractAssetManagerTestBase {
+public class AssetManagerSelectTest extends AssetManagerTestBase {
   @Test
   public void testSelectSnapshots() throws Exception {
     final MediaPackage mp = mkMediaPackage();
@@ -90,10 +90,10 @@ public class AbstractAssetManagerSelectTest extends AbstractAssetManagerTestBase
     assertFalse("Asset should not be found", am.getAsset(version, "id", "id").isSome());
     // try to find the catalog of the media package by checksum
     final MediaPackage mpCopy = MediaPackageSupport.copy(mp);
-    am.calcChecksumsForMediaPackageElements(AbstractAssetManager.assetsOnly(mpCopy));
+    am.calcChecksumsForMediaPackageElements(AssetManagerImpl.assetsOnly(mpCopy));
     assertEquals("Media package should be set up with a single catalog", 1, mpCopy.getCatalogs().length);
     final String checksum = mpCopy.getCatalogs()[0].getChecksum().toString();
-    assertTrue("Media package element should be retrievable by checksum", am.getDb().findAssetByChecksum(checksum).isSome());
+    assertTrue("Media package element should be retrievable by checksum", am.getDatabase().findAssetByChecksum(checksum).isSome());
     // issue some queries
     {
       logger.info("Run a failing query");

@@ -18,19 +18,11 @@
  * the License.
  *
  */
-package org.opencastproject.assetmanager.impl;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+package org.opencastproject.assetmanager.api.storage;
 
-/**
- * Test suite for {@link AbstractAssetManager}.
- */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-        AbstractAssetManagerBasicTest.class,
-        AbstractAssetManagerSelectTest.class,
-        AbstractAssetManagerPropertyRetrievalTest.class,
-        AbstractAssetManagerDeleteTestSuite.class})
-public class AbstractAssetManagerTestSuite {
+public interface RemoteAssetStore extends AssetStore {
+  // Defines the root directory to be used for any caching done by a remote
+  // asset store.  Caches should live as directories under this directory.
+  String ASSET_STORE_CACHE_ROOT = "org.opencastproject.assetmanager.storage.cache.rootdir";
 }

@@ -23,8 +23,8 @@ package org.opencastproject.assetmanager.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.opencastproject.assetmanager.impl.AssetManagerWithSecurity.READ_ACTION;
-import static org.opencastproject.assetmanager.impl.AssetManagerWithSecurity.WRITE_ACTION;
+import static org.opencastproject.assetmanager.impl.AssetManagerImpl.READ_ACTION;
+import static org.opencastproject.assetmanager.impl.AssetManagerImpl.WRITE_ACTION;
 import static org.opencastproject.util.data.Tuple.tuple;
 
 import org.opencastproject.assetmanager.api.Availability;
@@ -49,12 +49,10 @@ import org.opencastproject.security.api.User;
 import com.entwinemedia.fn.P1;
 import com.entwinemedia.fn.P1Lazy;
 import com.entwinemedia.fn.Prelude;
-import com.entwinemedia.fn.ProductBuilder;
 import com.entwinemedia.fn.Unit;
 import com.entwinemedia.fn.data.Opt;
 
 import org.easymock.EasyMock;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -64,49 +62,35 @@ import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 
 @RunWith(JUnitParamsRunner.class)
-public class AssetManagerWithSecurityTest extends AbstractTieredStorageAssetManagerTest<AssetManagerWithSecurity> {
+public class AssetManagerSecurityTest extends AssetManagerTestBase {
   public static final String ROLE_TEACHER = "ROLE_TEACHER";
   public static final String ROLE_USER = "ROLE_USER";
   public static final String ROLE_STUDENT = "ROLE_STUDENT";
   public static final String ROLE_ANONYMOUS = "ROLE_ANONYMOUS";
   public static final String ROLE_ORG_ADMIN = "ROLE_ORG_ADMIN";
 
-  private static ProductBuilder p = com.entwinemedia.fn.Products.E;
-
-  private SecurityService secSvc;
+  private SecurityService securityService;
 
   // Yikes, mutable state! Watch out...
   private User currentUser = TestUser.mk(TestOrganization.mkDefault(), new HashSet<Role>());
   private AccessControlList currentMediaPackageAcl = acl();
 
-  @Before
-  public void setUp() throws Exception {
-    setUp(mkTestEnvironment());
-  }
-
-  /**
-   * Setup the test environment.
-   */
-  public AssetManagerWithSecurity mkTestEnvironment() throws Exception {
+  @Override
+  public AssetManagerImpl makeAssetManager() throws Exception {
     final AuthorizationService authSvc = EasyMock.createMock(AuthorizationService.class);
     EasyMock.expect(authSvc.getActiveAcl(EasyMock.anyObject(MediaPackage.class))).andAnswer(
             () -> tuple(currentMediaPackageAcl, AclScope.Episode)).anyTimes();
     EasyMock.replay(authSvc);
-    //
-    secSvc = EasyMock.createNiceMock(SecurityService.class);
-    EasyMock.expect(secSvc.getUser()).andAnswer(() -> currentUser).anyTimes();
-    EasyMock.expect(secSvc.getOrganization()).andAnswer(() -> currentUser.getOrganization()).anyTimes();
-    EasyMock.replay(secSvc);
-    //
-    return new AssetManagerWithSecurity(mkTieredStorageAM(), authSvc, secSvc, false, false, false);
-  }
 
-  @Override public AbstractAssetManager getAbstractAssetManager() {
-    return (AbstractAssetManager) am.delegate;
-  }
+    securityService = EasyMock.createNiceMock(SecurityService.class);
+    EasyMock.expect(securityService.getUser()).andAnswer(() -> currentUser).anyTimes();
+    EasyMock.expect(securityService.getOrganization()).andAnswer(() -> currentUser.getOrganization()).anyTimes();
+    EasyMock.replay(securityService);
 
-  @Override public String getCurrentOrgId() {
-    return secSvc.getOrganization().getId();
+    AssetManagerImpl am = super.makeAssetManager();
+    am.setSecurityService(securityService);
+    am.setAuthorizationService(authSvc);
+    return am;
   }
 
   /**

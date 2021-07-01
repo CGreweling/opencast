@@ -58,7 +58,7 @@ import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 
 @RunWith(JUnitParamsRunner.class)
-public class AbstractAssetManagerPropertyRetrievalTest extends AbstractAssetManagerTestBase {
+public class AssetManagerPropertyRetrievalTest extends AssetManagerTestBase {
   /**
    * Create some media packages and associate some random properties to each of them.
    * Then iterate all created properties and create a query for each of them.
@@ -133,7 +133,7 @@ public class AbstractAssetManagerPropertyRetrievalTest extends AbstractAssetMana
   }
 
   private Object parametersForTestPropertyRetrieval() throws Exception {
-    setUp(mkAbstractAssetManager());
+    super.setUp();
     return $a(
             // Fetch one property of the latest version of a media package.
             new Params()

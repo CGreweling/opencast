@@ -18,18 +18,23 @@
  * the License.
  *
  */
-package org.opencastproject.assetmanager.impl;
+package org.opencastproject.assetmanager.api.storage;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+public class AssetStoreException extends RuntimeException {
+  private static final long serialVersionUID = -5519744635333639394L;
 
-/**
- * Test suite containing all asset manager tests.
- */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-    AbstractAssetManagerTestSuite.class,
-    AssetManagerWithMessagingTest.class,
-    AssetManagerWithSecurityTest.class})
-public class AssetManagerTestSuite {
+  public AssetStoreException() {
+  }
+
+  public AssetStoreException(String message) {
+    super(message);
+  }
+
+  public AssetStoreException(Throwable cause) {
+    super(cause);
+  }
+
+  public AssetStoreException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }
